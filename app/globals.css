@@ -1,14 +1,17 @@
 @import "tailwindcss";
 
+/* 🔹 Bu joyga o'z brend ranglaringni kirit */
+@theme {
+  --color-primary: #4c4083;
+  --color-secondary: #f59e0b;
+  --color-dark: #0f172a;
+  --color-light: #f8fafc;
+}
+
+/* 🔸 Umumiy o'zgaruvchilar (istalgancha) */
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme {
-  --color-brand-main: #6e8cfb;
-  --color-brand-secondary: #636ccb;
-  --color-brand-yordamchi: #696fc7;
 }
 
 html {

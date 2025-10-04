@@ -22,7 +22,7 @@ const Navbar = () => {
   return (
     <nav
       className={`fixed top-0 left-0 w-full z-50 transition-colors duration-300 ${
-        scrolled ? "bg-blue-700 shadow-md" : "bg-transparent"
+        scrolled ? "bg-primary shadow-md" : "bg-transparent"
       }`}
     >
       <div className="container mx-auto flex justify-between items-center px-6 py-4">
@@ -63,7 +63,7 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden bg-blue-700/95 shadow-md animate-fadeIn">
+        <div className="md:hidden bg-primary/95 shadow-md animate-fadeIn">
           <ul className="flex flex-col gap-6 p-6 text-white font-medium">
             <li className="hover:text-gray-200 transition cursor-pointer">
               Asosiy

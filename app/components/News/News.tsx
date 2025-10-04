@@ -35,9 +35,9 @@ const News = () => {
   ];
 
   return (
-    <section className="py-20 bg-white px-6" id="news">
+    <section className="py-20 bg-purple-600 px-6" id="news">
       <div className="container mx-auto">
-        <h2 className="text-3xl font-bold text-gray-800 text-center mb-14">
+        <h2 className="text-3xl font-bold text-white text-center mb-14">
           So‘nggi Yangiliklar
         </h2>
 
@@ -64,7 +64,7 @@ const News = () => {
                 <p className="text-gray-600 text-sm flex-grow line-clamp-3 mb-4">
                   {news.desc}
                 </p>
-                <button className="mt-auto inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition">
+                <button className="mt-auto inline-block bg-primary text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition">
                   Batafsil o‘qish
                 </button>
               </div>

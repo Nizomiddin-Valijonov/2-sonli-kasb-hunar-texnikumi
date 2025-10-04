@@ -90,7 +90,7 @@ function Contact() {
               </div>
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 transition"
+                className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-primary transition"
               >
                 Yuborish
               </button>

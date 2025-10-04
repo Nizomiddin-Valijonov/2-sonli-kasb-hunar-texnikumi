@@ -55,7 +55,7 @@ const Employees = () => {
               key={person.id}
               className={`relative bg-white rounded-2xl shadow-md p-6 flex flex-col items-center transition hover:-translate-y-2 hover:shadow-xl duration-300 ${
                 person.highlight
-                  ? "md:col-span-3 bg-gradient-to-r from-blue-600 to-blue-400 text-white"
+                  ? "md:col-span-3 bg-gradient-to-r from-primary to-purple-400 text-white"
                   : ""
               }`}
             >

@@ -1,4 +1,5 @@
 import AboutSchool from "./components/About-School/AboutSchool";
+import CarouselLinks from "./components/Carousel-Links/CarouselLinks";
 import Contact from "./components/Contact/Contact";
 import Employees from "./components/Employees/Employees";
 import Footer from "./components/Footer/Footer";
@@ -11,6 +12,7 @@ export default function Home() {
       <HeroSection />
       <AboutSchool />
       <Employees />
+      <CarouselLinks />
       <News />
       <Contact />
       <Footer />
