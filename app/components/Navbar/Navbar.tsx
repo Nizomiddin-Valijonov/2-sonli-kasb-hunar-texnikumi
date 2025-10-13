@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
+import LanguageSwitcher from "../Language-Switcher/LanguageSwitcher";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -51,9 +52,7 @@ const Navbar = () => {
         </ul>
 
         {/* CTA button */}
-        <button className="hidden md:block bg-white text-blue-600 font-medium px-5 py-2 rounded-xl hover:bg-gray-100 transition">
-          Kirish
-        </button>
+        <LanguageSwitcher />
 
         {/* Mobile menu button */}
         <button className="md:hidden text-white" onClick={() => setOpen(!open)}>
@@ -81,9 +80,7 @@ const Navbar = () => {
               Aloqa
             </li>
             <li>
-              <button className="w-full bg-white text-blue-600 font-medium px-4 py-2 rounded-xl hover:bg-gray-100 transition">
-                Kirish
-              </button>
+              <LanguageSwitcher />
             </li>
           </ul>
         </div>

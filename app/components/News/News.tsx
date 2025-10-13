@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import img from "../../assets/News/news.jpg";
 
 const News = () => {
@@ -64,9 +65,12 @@ const News = () => {
                 <p className="text-gray-600 text-sm flex-grow line-clamp-3 mb-4">
                   {news.desc}
                 </p>
-                <button className="mt-auto inline-block bg-primary text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition">
+                <Link
+                  href={`/news/${news?.id}`}
+                  className="mt-auto inline-block bg-primary text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition text-center"
+                >
                   Batafsil o‘qish
-                </button>
+                </Link>
               </div>
             </div>
           ))}
