@@ -1,7 +1,10 @@
 "use client";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 function Contact() {
+  const { t } = useTranslation();
+
   return (
     <section
       id="contact"
@@ -11,11 +14,10 @@ function Contact() {
         {/* Title */}
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800">
-            Biz bilan bog‘laning
+            {t("contact.title")}
           </h2>
           <p className="text-gray-500 mt-3 text-lg max-w-2xl mx-auto">
-            Sizning fikrlaringiz biz uchun muhim. Quyidagi forma orqali bizga
-            yozib qoldiring yoki bevosita telefon orqali bog‘laning.
+            {t("contact.subtitle")}
           </p>
         </div>
 
@@ -25,15 +27,13 @@ function Contact() {
           <div className="space-y-6">
             <div className="p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
               <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                Manzil
+                {t("contact.address.title")}
               </h3>
-              <p className="text-gray-600">
-                Toshkent shahri, Yunusobod tumani, 12-mavze, 33-maktab
-              </p>
+              <p className="text-gray-600">{t("contact.address.text")}</p>
             </div>
             <div className="p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
               <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                Telefon
+                {t("contact.phone.title")}
               </h3>
               <a
                 href="tel:+998901234567"
@@ -44,7 +44,7 @@ function Contact() {
             </div>
             <div className="p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
               <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                Email
+                {t("contact.email.title")}
               </h3>
               <a
                 href="mailto:info@33maktab.uz"
@@ -60,31 +60,31 @@ function Contact() {
             <form className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Ismingiz
+                  {t("contact.form.name")}
                 </label>
                 <input
                   type="text"
-                  placeholder="Ismingizni kiriting"
+                  placeholder={t("contact.form.namePlaceholder") || ""}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none transition"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
+                  {t("contact.form.email")}
                 </label>
                 <input
                   type="email"
-                  placeholder="Email manzilingiz"
+                  placeholder={t("contact.form.emailPlaceholder") || ""}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none transition"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Xabaringiz
+                  {t("contact.form.message")}
                 </label>
                 <textarea
                   rows={4}
-                  placeholder="Xabar yozing..."
+                  placeholder={t("contact.form.messagePlaceholder") || ""}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none transition"
                 />
               </div>
@@ -92,7 +92,7 @@ function Contact() {
                 type="submit"
                 className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-primary transition"
               >
-                Yuborish
+                {t("contact.form.send")}
               </button>
             </form>
           </div>

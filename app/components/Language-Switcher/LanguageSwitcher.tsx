@@ -1,8 +1,8 @@
 "use client";
 
+import "../../i18n/index";
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { usePathname, useRouter } from "next/navigation";
 import { Globe } from "lucide-react";
 import clsx from "clsx";
 
@@ -12,15 +12,18 @@ const LANGUAGES = [
   { code: "ru", label: "🇷🇺 Русский" },
 ];
 
-const LanguageSwitcher = () => {
+export default function LanguageSwitcher() {
   const { i18n } = useTranslation();
-  const router = useRouter();
-  const pathname = usePathname();
-
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false); // 👈 Yangi
+
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-  // 🔹 Dropdown tashqarisiga bosilganda yopish
+  // ❗️Bu SSR bilan clientdagi til nomutanosibligini yo‘qotadi
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -34,28 +37,18 @@ const LanguageSwitcher = () => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  // 🔹 Tilni o‘zgartirish funksiyasi
   const changeLanguage = (lng: string) => {
     if (lng === i18n.language) return;
-
-    const currentLang = i18n.language;
-    const hasLangPrefix = pathname.startsWith(`/${currentLang}`);
-
-    let newPath = pathname;
-    if (hasLangPrefix) {
-      newPath = pathname.replace(`/${currentLang}`, `/${lng}`);
-    } else {
-      newPath = `/${lng}${pathname}`;
-    }
-
     i18n.changeLanguage(lng);
-    router.push(newPath);
+    localStorage.setItem("i18nextLng", lng);
     setOpen(false);
   };
 
+  // 👇 Faqat clientda render qilamiz (hydration xatoni to‘liq oldini oladi)
+  if (!mounted) return null;
+
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
-      {/* 🔘 Tugma */}
       <button
         onClick={() => setOpen((prev) => !prev)}
         className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-sm px-3 py-2 rounded-lg font-medium transition-colors duration-200"
@@ -64,7 +57,6 @@ const LanguageSwitcher = () => {
         {i18n.language?.toUpperCase()}
       </button>
 
-      {/* 🌍 Dropdown */}
       {open && (
         <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-100 rounded-xl shadow-lg overflow-hidden animate-fade-in z-50">
           {LANGUAGES.map((lng) => (
@@ -85,6 +77,4 @@ const LanguageSwitcher = () => {
       )}
     </div>
   );
-};
-
-export default LanguageSwitcher;
+}
