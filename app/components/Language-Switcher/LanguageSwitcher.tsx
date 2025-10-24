@@ -51,7 +51,7 @@ export default function LanguageSwitcher() {
     <div className="relative inline-block text-left" ref={dropdownRef}>
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-sm px-3 py-2 rounded-lg font-medium transition-colors duration-200"
+        className="flex items-center gap-2 bg-secondary hover:bg-orange-400 text-sm px-3 py-2 rounded-lg font-medium transition-colors duration-200"
       >
         <Globe className="w-4 h-4" />
         {i18n.language?.toUpperCase()}

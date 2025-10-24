@@ -35,7 +35,7 @@ const Navbar = () => {
           33-Maktab
         </h1>
 
-        <ul className="hidden md:flex gap-8 text-white font-medium">
+        <ul className="hidden md:flex gap-8 text-white font-medium items-center">
           {menuItems.map((item) => (
             <li
               key={item.id}
@@ -44,9 +44,10 @@ const Navbar = () => {
               <a href={`#${item.id}`}>{item.label}</a>
             </li>
           ))}
+          <li>
+            <LanguageSwitcher />
+          </li>
         </ul>
-
-        <LanguageSwitcher />
 
         <button className="md:hidden text-white" onClick={() => setOpen(!open)}>
           {open ? <X size={28} /> : <Menu size={28} />}
