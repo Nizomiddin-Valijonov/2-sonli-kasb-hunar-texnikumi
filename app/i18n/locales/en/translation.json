@@ -64,7 +64,8 @@
     }
   },
   "employees": {
-    "title": "Our Employees"
+    "title": "Our Employees",
+    "empty": "Employees not found!"
   },
   "footer": {
     "schoolName": "School No.1",

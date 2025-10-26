@@ -14,58 +14,6 @@ import hukumatPortali from "../../assets/Government Logos/hukumat portali.jpg";
 import kutubxona from "../../assets/Government Logos/kutubxona.jpg";
 import ochiqAxborot from "../../assets/Government Logos/ochiq axborot.jpg";
 
-<<<<<<< HEAD
-const links = [
-  {
-    id: 1,
-    img: "/gerb.svg",
-    title: "Ўзбекистон Республикаси Президентининг расмий веб-сайти",
-    url: "https://president.uz",
-  },
-  {
-    id: 2,
-    img: "/gerb.svg",
-    title: "Ўзбекистон Республикаси Президентининг Виртуал қабулхонаси",
-    url: "https://pm.gov.uz",
-  },
-  {
-    id: 3,
-    img: hukumatPortali,
-    title: "Ўзбекистон Республикасининг ҳукумат портали",
-    url: "https://gov.uz",
-  },
-  {
-    id: 4,
-    img: egovLogo,
-    title: "Ягона Интерактив Давлат хизматлари портали",
-    url: "https://my.gov.uz",
-  },
-  {
-    id: 5,
-    img: kutubxona,
-    title: "Республика болалар кутубхонаси",
-    url: "https://kitob.uz",
-  },
-  {
-    id: 6,
-    img: ochiqAxborot,
-    title: "Ўзбекистон Республикаси очиқ ахборот портали",
-    url: "https://data.gov.uz",
-  },
-  {
-    id: 7,
-    img: "/gerb.svg",
-    title: "Ўзбекистон Республикаси Конституцияси",
-    url: "https://constitution.uz",
-  },
-];
-let arr = ["apple", ""];
-let obj = {
-  banan: 1,
-};
-
-=======
->>>>>>> a548b8185c85df431649efa4ca248e03da0e1c50
 const CarouselLinks = () => {
   const { t } = useTranslation();
 

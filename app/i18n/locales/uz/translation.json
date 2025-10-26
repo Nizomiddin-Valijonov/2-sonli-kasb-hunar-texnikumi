@@ -65,7 +65,8 @@
     }
   },
   "employees": {
-    "title": "Bizning Hodimlar"
+    "title": "Bizning Hodimlar",
+    "empty": "Hodimlar topilmadi!"
   },
   "footer": {
     "schoolName": "Maktab №1",
