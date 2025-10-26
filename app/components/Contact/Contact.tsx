@@ -1,7 +1,11 @@
 "use client";
 import React from "react";
+import { useTranslation } from "react-i18next";
+import { MapPin, Phone, Mail } from "lucide-react";
 
 function Contact() {
+  const { t } = useTranslation();
+
   return (
     <section
       id="contact"
@@ -11,90 +15,89 @@ function Contact() {
         {/* Title */}
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800">
-            Biz bilan bog‘laning
+            {t("contact.title")}
           </h2>
           <p className="text-gray-500 mt-3 text-lg max-w-2xl mx-auto">
-            Sizning fikrlaringiz biz uchun muhim. Quyidagi forma orqali bizga
-            yozib qoldiring yoki bevosita telefon orqali bog‘laning.
+            {t("contact.subtitle")}
           </p>
         </div>
 
         {/* Content */}
-        <div className="grid md:grid-cols-2 gap-12 items-start">
+        <div className="grid md:grid-cols-2 gap-10 items-start">
           {/* Left - Contact Info */}
           <div className="space-y-6">
-            <div className="p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                Manzil
-              </h3>
-              <p className="text-gray-600">
-                Toshkent shahri, Yunusobod tumani, 12-mavze, 33-maktab
-              </p>
+            {/* Address */}
+            <div className="flex items-start gap-4 p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
+              <div className="bg-blue-100 p-3 rounded-xl">
+                <MapPin className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                  {t("contact.address.title")}
+                </h3>
+                <p className="text-gray-600 leading-relaxed">
+                  {t("contact.address.text")}
+                </p>
+              </div>
             </div>
-            <div className="p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                Telefon
-              </h3>
-              <a
-                href="tel:+998901234567"
-                className="text-blue-600 font-medium hover:underline"
-              >
-                +998 90 123 45 67
-              </a>
+
+            {/* Phone */}
+            <div className="flex items-start gap-4 p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
+              <div className="bg-green-100 p-3 rounded-xl">
+                <Phone className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                  {t("contact.phone.title")}
+                </h3>
+                <a
+                  href="tel:+998901234567"
+                  className="text-blue-600 font-medium hover:underline"
+                >
+                  +998 90 123 45 67
+                </a>
+              </div>
             </div>
-            <div className="p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                Email
-              </h3>
-              <a
-                href="mailto:info@33maktab.uz"
-                className="text-blue-600 font-medium hover:underline"
-              >
-                info@33maktab.uz
-              </a>
+
+            {/* Email */}
+            <div className="flex items-start gap-4 p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
+              <div className="bg-purple-100 p-3 rounded-xl">
+                <Mail className="w-6 h-6 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                  {t("contact.email.title")}
+                </h3>
+                <a
+                  href="mailto:info@33maktab.uz"
+                  className="text-blue-600 font-medium hover:underline"
+                >
+                  info@33maktab.uz
+                </a>
+              </div>
             </div>
           </div>
 
-          {/* Right - Contact Form */}
-          <div className="bg-white shadow-md rounded-2xl p-8">
-            <form className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Ismingiz
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ismingizni kiriting"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none transition"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  placeholder="Email manzilingiz"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none transition"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Xabaringiz
-                </label>
-                <textarea
-                  rows={4}
-                  placeholder="Xabar yozing..."
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none transition"
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-primary transition"
-              >
-                Yuborish
-              </button>
-            </form>
+          {/* Right - Map */}
+          <div className="relative rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-transform hover:-translate-y-1">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1790.507807635158!2d71.61465533011756!3d40.99761219637871!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38bb4a347c000001%3A0xe73e77967b0ace7b!2z0KjQutC-0LvQsCDihJYzMw!5e0!3m2!1sru!2s!4v1760966005151!5m2!1sru!2s"
+              className="w-full h-[400px] md:h-[450px] border-0"
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
+
+            {/* Overlay info badge */}
+            <div className="absolute bottom-5 left-5 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-md flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-blue-600" />
+              <span className="text-sm font-medium text-gray-700">
+                33-Maktab joylashuvi
+              </span>
+            </div>
+
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none"></div>
           </div>
         </div>
       </div>

@@ -1,1 +1,85 @@
-{}
+{
+  "navbar": {
+    "main": "Home",
+    "about": "About School",
+    "employees": "Staff",
+    "news": "News",
+    "contact": "Contact"
+  },
+  "hero": {
+    "title": "Knowledge – The Key to the Future",
+    "subtitle": "At School No. 33",
+    "description": "Our school provides students with modern education, moral upbringing, and a solid foundation to strive toward great goals.",
+    "buttonNews": "View News",
+    "buttonContact": "Contact Us"
+  },
+  "about": {
+    "title": "About the School",
+    "description1": "School No. 33 is a place of knowledge and values for the younger generation. Our goal is to provide students with modern education and nurture independent, patriotic, and goal-oriented youth.",
+    "description2": "Our school has experienced teachers, modern classrooms, sports halls, and various clubs. Every student has great opportunities to discover and develop their talents.",
+    "image1Alt": "School building",
+    "image2Alt": "Students during class",
+    "image3Alt": "Library",
+    "image4Alt": "Gym"
+  },
+  "carousel": {
+    "title": "Useful Links",
+    "links": {
+      "1": "Official website of the President of the Republic of Uzbekistan",
+      "2": "Virtual reception of the President of the Republic of Uzbekistan",
+      "3": "Government portal of the Republic of Uzbekistan",
+      "4": "Unified interactive public services portal",
+      "5": "Republican Children's Library",
+      "6": "Open Data Portal of the Republic of Uzbekistan",
+      "7": "Constitution of the Republic of Uzbekistan"
+    }
+  },
+  "news": {
+    "title": "Latest News",
+    "loading": "Loading...",
+    "empty": "No data found",
+    "readMore": "Read more"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Your feedback is important to us. Send us a message using the form below or contact us directly by phone.",
+    "address": {
+      "title": "Address",
+      "text": "Tashkent, Yunusabad district, 12th quarter, School No. 33"
+    },
+    "phone": {
+      "title": "Phone"
+    },
+    "email": {
+      "title": "Email"
+    },
+    "form": {
+      "name": "Your Name",
+      "namePlaceholder": "Enter your name",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email address",
+      "message": "Your Message",
+      "messagePlaceholder": "Write a message...",
+      "send": "Send"
+    }
+  },
+  "employees": {
+    "title": "Our Employees"
+  },
+  "footer": {
+    "schoolName": "School No.1",
+    "description": "Our school is a place of knowledge and education for the future generation.",
+    "linksTitle": "Links",
+    "links": {
+      "home": "Home",
+      "news": "News",
+      "about": "About Us",
+      "contact": "Contact"
+    },
+    "contactTitle": "Contact",
+    "address": "📍 Tashkent, Chilonzor",
+    "phone": "📞 +998 90 123 45 67",
+    "email": "✉️ info@maktab.uz",
+    "copyright": "All rights reserved."
+  }
+}

@@ -5,31 +5,30 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
+import Image from "next/image";
+import { useTranslation } from "react-i18next";
+
 import img1 from "../../assets/Carousel/school.jpg";
 import img2 from "../../assets/Carousel/class with students.jpg";
 import img3 from "../../assets/Carousel/lybrary.jpg";
 import img4 from "../../assets/Carousel/gym.jpg";
-import Image from "next/image";
 
 function AboutSchool() {
+  const { t } = useTranslation();
+
   return (
     <section className="py-20 bg-gray-50" id="about-school">
       <div className="container mx-auto flex flex-col md:flex-row items-center gap-12 px-4 md:px-6">
         {/* Left - Text */}
         <div className="flex-1 text-center md:text-left md:max-w-[50%]">
           <h2 className="text-3xl md:text-4xl font-bold text-blue-700 mb-6">
-            Maktab haqida
+            {t("about.title")}
           </h2>
           <p className="text-gray-700 text-base md:text-lg leading-relaxed mb-6">
-            33-Maktab – yosh avlod uchun bilim va ma’naviyat maskani. Bizning
-            maqsadimiz o‘quvchilarni zamonaviy bilimlar bilan qurollantirish,
-            mustaqil fikrlaydigan, vatanparvar va maqsadli yoshlarni
-            tarbiyalashdir.
+            {t("about.description1")}
           </p>
           <p className="text-gray-700 text-base md:text-lg leading-relaxed">
-            Maktabimizda tajribali o‘qituvchilar jamoasi, zamonaviy o‘quv
-            xonalari, sport zallari va turli to‘garaklar mavjud. Har bir bola
-            o‘z iste’dodini ochib berishi uchun keng imkoniyatlar yaratilgan.
+            {t("about.description2")}
           </p>
         </div>
 
@@ -45,28 +44,28 @@ function AboutSchool() {
             <SwiperSlide>
               <Image
                 src={img1}
-                alt="Maktab binosi"
+                alt={t("about.image1Alt")}
                 className="w-full h-full object-cover rounded-2xl"
               />
             </SwiperSlide>
             <SwiperSlide>
               <Image
                 src={img2}
-                alt="O‘quvchilar dars jarayonida"
+                alt={t("about.image2Alt")}
                 className="w-full h-full object-cover rounded-2xl"
               />
             </SwiperSlide>
             <SwiperSlide>
               <Image
                 src={img3}
-                alt="Kutubxona"
+                alt={t("about.image3Alt")}
                 className="w-full h-full object-cover rounded-2xl"
               />
             </SwiperSlide>
             <SwiperSlide>
               <Image
                 src={img4}
-                alt="Sport zali"
+                alt={t("about.image4Alt")}
                 className="w-full h-full object-cover rounded-2xl"
               />
             </SwiperSlide>

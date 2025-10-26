@@ -1,1 +1,86 @@
-{}
+{
+  "navbar": {
+    "main": "Asosiy",
+    "about": "Maktab haqida",
+    "employees": "Hodimlar",
+    "news": "Yangiliklar",
+    "contact": "Aloqa"
+  },
+  "hero": {
+    "title": "Bilim – Kelajak Kaliti",
+    "subtitle": "33-Maktabda",
+    "description": "Bizning maktabimiz o'quvchilarga zamonaviy ta'lim, ma'naviy tarbiya va yuksak maqsad sari intilish uchun kuchli poydevor yaratadi.",
+    "buttonNews": "Yangiliklarni ko‘rish",
+    "buttonContact": "Biz bilan bog‘lanish"
+  },
+  "about": {
+    "title": "Maktab haqida",
+    "description1": "33-Maktab – yosh avlod uchun bilim va ma’naviyat maskani. Bizning maqsadimiz o‘quvchilarni zamonaviy bilimlar bilan qurollantirish, mustaqil fikrlaydigan, vatanparvar va maqsadli yoshlarni tarbiyalashdir.",
+    "description2": "Maktabimizda tajribali o‘qituvchilar jamoasi, zamonaviy o‘quv xonalari, sport zallari va turli to‘garaklar mavjud. Har bir bola o‘z iste’dodini ochib berishi uchun keng imkoniyatlar yaratilgan.",
+    "image1Alt": "Maktab binosi",
+    "image2Alt": "O‘quvchilar dars jarayonida",
+    "image3Alt": "Kutubxona",
+    "image4Alt": "Sport zali"
+  },
+  "carousel": {
+    "title": "Foydali havolalar",
+    "links": {
+      "1": "O‘zbekiston Respublikasi Prezidentining rasmiy veb-sayti",
+      "2": "O‘zbekiston Respublikasi Prezidentining Virtual qabulxonasi",
+      "3": "O‘zbekiston Respublikasi Hukumat portali",
+      "4": "Yagona interaktiv davlat xizmatlari portali",
+      "5": "Respublika bolalar kutubxonasi",
+      "6": "O‘zbekiston Respublikasi ochiq axborot portali",
+      "7": "O‘zbekiston Respublikasi Konstitutsiyasi"
+    }
+  },
+  "news": {
+    "title": "Yangiliklar",
+    "loading": "Yuklanmoqda...",
+    "empty": "Ma'lumotlar topilmadi",
+    "readMore": "Batafsil o‘qish"
+  },
+
+  "contact": {
+    "title": "Biz bilan bog‘laning",
+    "subtitle": "Sizning fikrlaringiz biz uchun muhim. Quyidagi forma orqali bizga yozib qoldiring yoki bevosita telefon orqali bog‘laning.",
+    "address": {
+      "title": "Manzil",
+      "text": "Toshkent shahri, Yunusobod tumani, 12-mavze, 33-maktab"
+    },
+    "phone": {
+      "title": "Telefon"
+    },
+    "email": {
+      "title": "Email"
+    },
+    "form": {
+      "name": "Ismingiz",
+      "namePlaceholder": "Ismingizni kiriting",
+      "email": "Email",
+      "emailPlaceholder": "Email manzilingiz",
+      "message": "Xabaringiz",
+      "messagePlaceholder": "Xabar yozing...",
+      "send": "Yuborish"
+    }
+  },
+  "employees": {
+    "title": "Bizning Hodimlar"
+  },
+  "footer": {
+    "schoolName": "Maktab №1",
+    "description": "Bizning maktab – kelajak avlod uchun bilim va tarbiya maskani.",
+    "linksTitle": "Havolalar",
+    "links": {
+      "home": "Bosh sahifa",
+      "news": "Yangiliklar",
+      "about": "Biz haqimizda",
+      "contact": "Bog‘lanish"
+    },
+    "contactTitle": "Aloqa",
+    "address": "📍 Toshkent, Chilonzor",
+    "phone": "📞 +998 90 123 45 67",
+    "email": "✉️ info@maktab.uz",
+    "copyright": "Barcha huquqlar himoyalangan."
+  }
+}

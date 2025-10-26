@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -6,12 +7,14 @@ import "swiper/css";
 import "swiper/css/navigation";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import egovLogo from "../../assets/Government Logos/egov.png";
 import hukumatPortali from "../../assets/Government Logos/hukumat portali.jpg";
 import kutubxona from "../../assets/Government Logos/kutubxona.jpg";
 import ochiqAxborot from "../../assets/Government Logos/ochiq axborot.jpg";
 
+<<<<<<< HEAD
 const links = [
   {
     id: 1,
@@ -61,11 +64,60 @@ let obj = {
   banan: 1,
 };
 
+=======
+>>>>>>> a548b8185c85df431649efa4ca248e03da0e1c50
 const CarouselLinks = () => {
+  const { t } = useTranslation();
+
+  const links = [
+    {
+      id: 1,
+      img: "/gerb.svg",
+      title: t("carousel.links.1"),
+      url: "https://president.uz",
+    },
+    {
+      id: 2,
+      img: "/gerb.svg",
+      title: t("carousel.links.2"),
+      url: "https://pm.gov.uz",
+    },
+    {
+      id: 3,
+      img: hukumatPortali,
+      title: t("carousel.links.3"),
+      url: "https://gov.uz",
+    },
+    {
+      id: 4,
+      img: egovLogo,
+      title: t("carousel.links.4"),
+      url: "https://my.gov.uz",
+    },
+    {
+      id: 5,
+      img: kutubxona,
+      title: t("carousel.links.5"),
+      url: "https://kitob.uz",
+    },
+    {
+      id: 6,
+      img: ochiqAxborot,
+      title: t("carousel.links.6"),
+      url: "https://data.gov.uz",
+    },
+    {
+      id: 7,
+      img: "/gerb.svg",
+      title: t("carousel.links.7"),
+      url: "https://constitution.uz",
+    },
+  ];
+
   return (
     <section className="py-16 px-4 sm:px-6 lg:px-12">
       <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10 text-brand-main">
-        Фойдали ҳаволалар
+        {t("carousel.title")}
       </h2>
 
       <div className="relative">
@@ -76,15 +128,14 @@ const CarouselLinks = () => {
             prevEl: ".swiper-button-prev",
             nextEl: ".swiper-button-next",
           }}
-          // ✅ MEDIA BREAKPOINTS (har xil ekranlar uchun)
           breakpoints={{
-            0: { slidesPerView: 1.3, spaceBetween: 16 }, // eng kichik (mobile)
-            480: { slidesPerView: 2, spaceBetween: 20 }, // kichik telefon
-            640: { slidesPerView: 2.5, spaceBetween: 24 }, // katta telefon
-            768: { slidesPerView: 3.2, spaceBetween: 28 }, // planshet
-            1024: { slidesPerView: 4.2, spaceBetween: 30 }, // laptop
-            1280: { slidesPerView: 5.2, spaceBetween: 32 }, // katta ekran
-            1536: { slidesPerView: 6, spaceBetween: 36 }, // ultra-wide
+            0: { slidesPerView: 1.3, spaceBetween: 16 },
+            480: { slidesPerView: 2, spaceBetween: 20 },
+            640: { slidesPerView: 2.5, spaceBetween: 24 },
+            768: { slidesPerView: 3.2, spaceBetween: 28 },
+            1024: { slidesPerView: 4.2, spaceBetween: 30 },
+            1280: { slidesPerView: 5.2, spaceBetween: 32 },
+            1536: { slidesPerView: 6, spaceBetween: 36 },
           }}
           className="pb-10"
         >

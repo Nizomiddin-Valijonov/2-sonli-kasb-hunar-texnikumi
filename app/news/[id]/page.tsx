@@ -1,47 +1,79 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import axios from "axios";
 
-// Demo yangiliklar (keyinchalik backenddan keladi)
-const newsData = [
-  {
-    id: 1,
-    title: "Maktabimizda yangi sport zal ochildi",
-    desc: "33-maktabda o‘quvchilar uchun zamonaviy sport zali ishga tushirildi. Endilikda futbol, basketbol va voleybol mashg‘ulotlari yuqori darajada o‘tkaziladi.",
-    fullText:
-      "33-maktabda yangi sport zalning ochilishi o‘quvchilar uchun katta imkoniyat yaratdi. Endi o‘quvchilar sport bilan muntazam shug‘ullanishlari, jismoniy rivojlanishlari uchun barcha sharoitlar mavjud. Sport zali zamonaviy uskunalar bilan jihozlangan bo‘lib, futbol, basketbol, voleybol va gimnastika mashg‘ulotlari uchun mo‘ljallangan.",
-    img: "/images/news/sportzal.jpg",
-    date: "2025-09-20",
-  },
-  {
-    id: 2,
-    title: "O‘quvchilarimiz matematika olimpiadasida g‘olib bo‘ldi",
-    desc: "Viloyat miqyosidagi olimpiadada 33-maktab o‘quvchilari faxrli 1-o‘rinni egallashdi.",
-    fullText:
-      "Olimpiadada ishtirok etgan 33-maktabning 9-sinf o‘quvchilari matematika bo‘yicha yuqori natijalar ko‘rsatishdi. Ular orasida Bobur Mamatov va Dilorom Rustamova 1-o‘rinni egallashdi. Maktab rahbariyati tomonidan faxriy yorliq va esdalik sovg‘alari topshirildi.",
-    img: "/images/news/olimpiada.jpg",
-    date: "2025-09-25",
-  },
-];
+interface NewsItem {
+  id: number;
+  title: string;
+  desc: string;
+  fullText: string;
+  img: string;
+  date: string;
+}
 
 export default function NewsDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const news = newsData.find((item) => item.id === Number(id));
 
-  if (!news) {
+  const [news, setNews] = useState<NewsItem | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5050/api/news/${id}`);
+        console.log("News detail:", res.data);
+
+        // API tuzilmasiga qarab:
+        const data =
+          res.data && res.data.data ? res.data.data : res.data || null;
+
+        if (data && data.id) {
+          setNews(data);
+        } else {
+          setError("Yangilik topilmadi");
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Server bilan bog‘lanishda xatolik yuz berdi");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) fetchNews();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center text-gray-500 text-lg">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary mb-4"></div>
+        Ma'lumot yuklanmoqda...
+      </div>
+    );
+  }
+
+  if (error) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
-        <h2 className="text-2xl font-semibold text-secondary mb-2">
-          Yangilik topilmadi 😔
-        </h2>
+        <h2 className="text-2xl font-semibold text-red-600 mb-2">{error} 😔</h2>
         <button
           onClick={() => router.push("/news")}
           className="mt-4 px-6 py-2 bg-primary text-white rounded-xl hover:opacity-90 transition-all"
         >
           Bosh sahifaga qaytish
         </button>
+      </div>
+    );
+  }
+
+  if (!news) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center text-gray-500">
+        Yangilik topilmadi 😔
       </div>
     );
   }
@@ -61,7 +93,7 @@ export default function NewsDetailPage() {
       {/* Image */}
       <div className="relative w-full h-72 sm:h-[400px] rounded-2xl overflow-hidden mb-6 shadow-md">
         <Image
-          src={news.img}
+          src={news.img || "/images/default-news.jpg"}
           alt={news.title}
           fill
           className="object-cover hover:scale-105 transition-transform duration-500"
