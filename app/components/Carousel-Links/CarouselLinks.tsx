@@ -56,6 +56,10 @@ const links = [
     url: "https://constitution.uz",
   },
 ];
+let arr = ["apple", ""];
+let obj = {
+  banan: 1,
+};
 
 const CarouselLinks = () => {
   return (
