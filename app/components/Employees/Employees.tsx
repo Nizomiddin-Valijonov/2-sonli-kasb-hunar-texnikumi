@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 interface Employee {
   id: number;
   name: string;
-  role: string;
+  role: string | { uz: string; en: string; ru: string };
   img: string;
   highlight?: boolean;
 }
@@ -22,18 +22,27 @@ const Employees = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await axios.get("http://localhost:5050/api/employees");
+        setLoading(true);
+
+        // 🔥 LocalStorage dan i18next tilini olish
+        const lang = localStorage.getItem("i18nextLng") || "uz";
+
+        // 🔥 API chaqiruvi til bilan
+        const response = await axios.get(
+          `http://localhost:5050/api/employees?lang=${lang}`
+        );
+
         const data =
-          Array.isArray(response.data) && response.data.length
-            ? response.data
-            : Array.isArray(response.data.data)
+          Array.isArray(response.data?.data) && response.data.data.length
             ? response.data.data
+            : Array.isArray(response.data)
+            ? response.data
             : null;
 
         if (data) setStaff(data);
-        else setError("Xodimlar topilmadi");
+        else setError(t("employees.empty"));
       } catch (err) {
-        setError("Server bilan bog‘lanishda xatolik yuz berdi");
+        setError(t("employees.error"));
       } finally {
         setLoading(false);
       }
@@ -88,57 +97,70 @@ const Employees = () => {
             auto-rows-[320px]
           "
         >
-          {staff.map((person) => (
-            <div
-              key={person.id}
-              className={`
-                relative bg-white overflow-hidden 
-                rounded-2xl shadow-md 
-                flex flex-col items-center justify-center 
-                text-center p-6 transition-all duration-500
-                hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02]
-                ${
-                  person.highlight
-                    ? "lg:col-span-2 bg-gradient-to-t from-secondary via-ingigo-600 to-primary text-white"
-                    : ""
-                }
-              `}
-            >
+          {staff.map((person) => {
+            // 🔥 role tilga qarab chiqsin (agar obyekt bo‘lsa)
+            const lang = localStorage.getItem("i18nextLng") || "uz";
+            const role =
+              typeof person.role === "object"
+                ? person.role[lang as "uz" | "ru" | "en"] || person.role.uz
+                : person.role;
+
+            return (
               <div
-                className={`relative ${
-                  person.highlight ? "w-32 h-32" : "w-24 h-24"
-                } mb-4`}
+                key={person.id}
+                className={`
+                  relative bg-white overflow-hidden 
+                  rounded-2xl shadow-md 
+                  flex flex-col items-center justify-center 
+                  text-center p-6 transition-all duration-500
+                  hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02]
+                  ${
+                    person.highlight
+                      ? "lg:col-span-2 bg-gradient-to-br from-indigo-600 via-primary to-secondary text-white"
+                      : ""
+                  }
+                `}
               >
-                <Image
-                  src={person.img || ""}
-                  alt={person.name}
-                  fill
-                  className={`object-cover rounded-full border-4 ${
-                    person.highlight ? "border-white" : "border-gray-200"
-                  } shadow-lg`}
-                />
+                <div
+                  className={`relative ${
+                    person.highlight ? "w-32 h-32" : "w-24 h-24"
+                  } mb-4`}
+                >
+                  <Image
+                    src={
+                      person.img
+                        ? `http://localhost:5050/api/employees${person.img}`
+                        : "/default-avatar.png"
+                    }
+                    alt={person.name}
+                    fill
+                    className={`object-cover rounded-full border-4 ${
+                      person.highlight ? "border-white" : "border-gray-200"
+                    } shadow-lg`}
+                  />
+                </div>
+
+                <h3
+                  className={`font-semibold ${
+                    person.highlight ? "text-2xl" : "text-lg text-gray-800"
+                  }`}
+                >
+                  {person.name}
+                </h3>
+                <p
+                  className={`mt-1 ${
+                    person.highlight ? "text-blue-100" : "text-gray-500"
+                  }`}
+                >
+                  {role}
+                </p>
+
+                {person.highlight && (
+                  <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,white,transparent_70%)] pointer-events-none"></div>
+                )}
               </div>
-
-              <h3
-                className={`font-semibold ${
-                  person.highlight ? "text-2xl" : "text-lg text-gray-800"
-                }`}
-              >
-                {person.name}
-              </h3>
-              <p
-                className={`mt-1 ${
-                  person.highlight ? "text-blue-100" : "text-gray-500"
-                }`}
-              >
-                {person.role}
-              </p>
-
-              {person.highlight && (
-                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,white,transparent_70%)] pointer-events-none"></div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

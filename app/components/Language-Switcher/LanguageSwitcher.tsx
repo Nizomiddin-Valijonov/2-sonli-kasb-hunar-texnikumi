@@ -1,9 +1,10 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Globe } from "lucide-react";
+import { Globe, Loader2 } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
 import clsx from "clsx";
+import i18next from "../../i18n"; // ⚠️ pathni sening loyihangdagi joylashuvga moslashtir
 
 const LANGUAGES = [
   { code: "uz", label: "🇺🇿 O‘zbekcha" },
@@ -13,6 +14,7 @@ const LANGUAGES = [
 
 const LanguageSwitcher = () => {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -23,7 +25,7 @@ const LanguageSwitcher = () => {
       ? pathname.split("/")[1]
       : "uz";
 
-  // Tashqariga bosganda yopish
+  // 🔹 Tashqariga bosganda dropdown yopish
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -37,24 +39,53 @@ const LanguageSwitcher = () => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  const changeLanguage = (lng: string) => {
+  // 🔥 Tilni o‘zgartirish
+  const changeLanguage = async (lng: string) => {
     if (lng === currentLang) return;
-    const newPath = pathname.replace(`/${currentLang}`, `/${lng}`);
-    router.push(newPath);
-    setOpen(false);
+    setLoading(true);
+
+    try {
+      // i18next ichki tilini darhol o‘zgartirish
+      await i18next.changeLanguage(lng);
+      localStorage.setItem("i18nextLng", lng);
+
+      // URL yo‘lini o‘zgartirish
+      const newPath = pathname.replace(`/${currentLang}`, `/${lng}`);
+      router.push(newPath);
+
+      // ixtiyoriy: router.refresh() bilan server komponentlarni yangilash
+      // router.refresh();
+    } finally {
+      // biroz kutish (transition effekt uchun)
+      setTimeout(() => setLoading(false), 400);
+      setOpen(false);
+    }
   };
 
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
       <button
         onClick={() => setOpen((p) => !p)}
-        className="flex items-center gap-2 bg-secondary hover:bg-orange-400 text-sm px-3 py-2 rounded-lg font-medium transition-colors duration-200"
+        disabled={loading}
+        className={clsx(
+          "flex items-center gap-2 bg-secondary text-sm px-3 py-2 rounded-lg font-medium transition-all duration-200",
+          loading ? "opacity-60 cursor-not-allowed" : "hover:bg-orange-400"
+        )}
       >
-        <Globe className="w-4 h-4" />
-        {currentLang.toUpperCase()}
+        {loading ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span>Loading...</span>
+          </>
+        ) : (
+          <>
+            <Globe className="w-4 h-4" />
+            {currentLang.toUpperCase()}
+          </>
+        )}
       </button>
 
-      {open && (
+      {open && !loading && (
         <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-100 rounded-xl shadow-lg overflow-hidden z-50">
           {LANGUAGES.map((lng) => (
             <button

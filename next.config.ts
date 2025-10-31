@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
         port: "5050",
         pathname: "/api/news/images/**",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "5050",
+        pathname: "/api/employees/images/**",
+      },
     ],
   },
 };
