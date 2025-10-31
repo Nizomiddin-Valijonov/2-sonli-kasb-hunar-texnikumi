@@ -5,6 +5,8 @@ import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
+import { usePathname } from "next/navigation"; // ✅ URL pathni olish uchun
+import logo from "../../assets/News/news.jpg";
 
 interface NewsItem {
   id: number;
@@ -16,18 +18,30 @@ interface NewsItem {
 
 const News = () => {
   const { t } = useTranslation();
+  const pathname = usePathname();
   const [newsList, setNewsList] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ✅ API dan ma'lumot olish
+  // 🔥 URL dan tilni olish
+  const currentLang =
+    pathname.split("/")[1] &&
+    ["uz", "en", "ru"].includes(pathname.split("/")[1])
+      ? pathname.split("/")[1]
+      : "uz";
+
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const response = await axios.get("http://localhost:5050/api/news");
+        setLoading(true);
 
-        if (response.data["data"] && Array.isArray(response.data["data"])) {
-          setNewsList(response.data["data"]);
+        // 🔥 URL’dagi lang bo‘yicha API chaqiramiz
+        const response = await axios.get(
+          `http://localhost:5050/api/news?lang=${currentLang}`
+        );
+
+        if (response.data?.data && Array.isArray(response.data.data)) {
+          setNewsList(response.data.data);
         } else {
           setError("Ma'lumotlar topilmadi");
         }
@@ -40,8 +54,9 @@ const News = () => {
     };
 
     fetchNews();
-  }, []);
+  }, [currentLang]); // ✅ Til o‘zgarganda qayta chaqiriladi
 
+  // --- Loading holati ---
   if (loading) {
     return (
       <section className="py-20 bg-purple-600 text-center text-white">
@@ -50,6 +65,7 @@ const News = () => {
     );
   }
 
+  // --- Xatolik holati ---
   if (error) {
     return (
       <section className="py-20 bg-purple-600 text-center text-white">
@@ -58,6 +74,7 @@ const News = () => {
     );
   }
 
+  // --- Bo‘sh holat ---
   if (!newsList.length) {
     return (
       <section className="py-20 bg-purple-600 text-center text-white">
@@ -66,6 +83,7 @@ const News = () => {
     );
   }
 
+  // --- Asosiy kontent ---
   return (
     <section className="py-20 bg-purple-600 px-6" id="news">
       <div className="container mx-auto">
@@ -80,12 +98,15 @@ const News = () => {
               className="bg-gray-50 rounded-2xl shadow-md hover:shadow-xl transition duration-300 overflow-hidden flex flex-col"
             >
               <Image
-                src={news?.img || "/placeholder.png"}
-                alt={news?.title}
+                src={
+                  news?.img ? `http://localhost:5050/api/news${news.img}` : logo
+                }
+                alt={news?.title || "News image"}
                 width={400}
                 height={250}
                 className="w-full h-52 object-cover"
               />
+
               <div className="p-6 flex flex-col flex-grow">
                 <span className="text-sm text-gray-500 mb-2">
                   {new Date(news.date).toLocaleDateString("uz-UZ")}
@@ -97,7 +118,7 @@ const News = () => {
                   {news.desc}
                 </p>
                 <Link
-                  href={`/news/${news.id}`}
+                  href={`/${currentLang}/news/${news.id}`}
                   className="mt-auto inline-block bg-primary text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition text-center"
                 >
                   {t("news.readMore")}

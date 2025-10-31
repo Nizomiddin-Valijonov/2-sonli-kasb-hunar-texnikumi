@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../Language-Switcher/LanguageSwitcher";
+import i18n from "../../i18n";
 
-const Navbar = () => {
+const Navbar = ({ lng }: { lng: string }) => {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { t } = useTranslation();
@@ -15,6 +16,13 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (i18n.language !== lng) {
+      i18n.changeLanguage(lng);
+      document.documentElement.lang = lng;
+    }
+  }, [lng]);
 
   const menuItems = [
     { id: "main", label: t("navbar.main") },
