@@ -1,70 +1,77 @@
 "use client";
 
 import React from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination, EffectFade } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/pagination";
-import "swiper/css/effect-fade";
-import Image from "next/image";
 import { useTranslation } from "react-i18next";
-
-import img1 from "../../assets/Carousel/school.jpg";
-import img2 from "../../assets/Carousel/class with students.jpg";
-import img3 from "../../assets/Carousel/lybrary.jpg";
-import img4 from "../../assets/Carousel/gym.jpg";
+import { motion } from "framer-motion";
+import { GraduationCap, Users2, Trophy } from "lucide-react";
 
 const AboutSchool = () => {
   const { t } = useTranslation();
 
+  const stats = [
+    {
+      icon: <Users2 className="w-8 h-8 text-indigo-600" />,
+      number: "100+",
+      label: t("about.stats.students"),
+    },
+    {
+      icon: <GraduationCap className="w-8 h-8 text-indigo-600" />,
+      number: "35+",
+      label: t("about.stats.teachers"),
+    },
+    {
+      icon: <Trophy className="w-8 h-8 text-indigo-600" />,
+      number: "90+",
+      label: t("about.stats.achievements"),
+    },
+  ];
+
   return (
-    <section className="py-24 bg-white" id="about-school">
-      <div className="container mx-auto flex flex-col md:flex-row items-center gap-16 px-4 md:px-6">
-        {/* LEFT SIDE */}
-        <div className="flex-1 md:max-w-[45%] text-center md:text-left">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight mb-6">
+    <section
+      className="relative py-28 bg-white overflow-hidden"
+      id="about-school"
+    >
+      {/* subtle background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-gray-50 via-white to-gray-50 pointer-events-none"></div>
+
+      <div className="container relative z-10 mx-auto px-6 max-w-6xl">
+        {/* Text */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="text-center max-w-2xl mx-auto"
+        >
+          <h2 className="text-4xl md:text-5xl font-semibold text-gray-900 tracking-tight mb-6">
             {t("about.title")}
           </h2>
-          <p className="text-gray-600 text-lg leading-relaxed mb-6">
+          <p className="text-gray-600 text-lg leading-relaxed mb-4">
             {t("about.description1")}
           </p>
           <p className="text-gray-600 text-lg leading-relaxed">
             {t("about.description2")}
           </p>
-        </div>
+        </motion.div>
 
-        {/* RIGHT SIDE */}
-        <div className="flex-1 relative w-full max-w-[600px] mx-auto">
-          <Swiper
-            modules={[Autoplay, Pagination, EffectFade]}
-            autoplay={{
-              delay: 3500,
-              disableOnInteraction: false,
-            }}
-            effect="fade"
-            pagination={{
-              clickable: true,
-              renderBullet: (index, className) => {
-                return `<span class="${className} w-10 h-[3px] rounded-full inline-block mx-1 bg-gray-300 transition-all"></span>`;
-              },
-            }}
-            loop
-            className="rounded-3xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
-          >
-            {[img1, img2, img3, img4].map((img, i) => (
-              <SwiperSlide key={i}>
-                <div className="relative w-full h-[350px] md:h-[420px]">
-                  <Image
-                    src={img}
-                    alt={`Slide ${i + 1}`}
-                    fill
-                    className="object-cover scale-105 transition-transform duration-[2500ms] ease-[cubic-bezier(0.25,1,0.5,1)] hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent"></div>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+        {/* Stats */}
+        <div className="mt-16 grid sm:grid-cols-3 gap-6">
+          {stats.map((stat, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: i * 0.2 }}
+              viewport={{ once: true }}
+              className="bg-white border border-gray-100 rounded-3xl shadow-sm hover:shadow-md transition-all p-8 flex flex-col items-center text-center"
+            >
+              <div className="mb-3">{stat.icon}</div>
+              <h3 className="text-3xl font-semibold text-gray-900">
+                {stat.number}
+              </h3>
+              <p className="text-gray-500 mt-1 text-sm">{stat.label}</p>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

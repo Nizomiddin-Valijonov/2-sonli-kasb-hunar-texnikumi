@@ -9,11 +9,11 @@ const rubikSans = Rubik({
 });
 
 export const metadata: Metadata = {
-  title: "33-maktab – Rasmiy veb-sayt",
+  title: "84-maktab – Rasmiy veb-sayt",
   description:
-    "33-maktab – yosh avlod uchun bilim va ma’naviyat maskani. O‘quvchilar uchun yangiliklar, tadbirlar, ta’lim muhitidan xabardor bo‘ling.",
+    "84-maktab – yosh avlod uchun bilim va ma’naviyat maskani. O‘quvchilar uchun yangiliklar, tadbirlar, ta’lim muhitidan xabardor bo‘ling.",
   keywords: [
-    "33-maktab",
+    "84-maktab",
     "maktab",
     "Uzbekistan school",
     "ta’lim",
@@ -22,20 +22,20 @@ export const metadata: Metadata = {
     "uzedu",
   ],
   authors: [{ name: "Nizomiddin Valijanov" }],
-  creator: "33-maktab",
-  publisher: "33-maktab",
+  creator: "84-maktab",
+  publisher: "84-maktab",
   openGraph: {
-    title: "33-maktab – Rasmiy veb-sayt",
+    title: "84-maktab – Rasmiy veb-sayt",
     description:
       "Bilim va ma’naviyat maskani. Maktab yangiliklari, tadbirlar va ta’lim jarayoni haqida batafsil ma’lumot.",
-    url: "https://33-maktab.uz",
-    siteName: "33-maktab",
+    url: "https://nam-school84.uz",
+    siteName: "84-maktab",
     images: [
       {
-        url: "./gerb.svg", // public papkaga rasmi qo‘yish kerak
+        url: "/gerb.svg", // public papkaga rasmi qo‘yish kerak
         width: 1200,
         height: 630,
-        alt: "33-maktab",
+        alt: "84-maktab",
       },
     ],
     locale: "uz_UZ",
@@ -43,24 +43,24 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "33-maktab – Rasmiy veb-sayt",
+    title: "84-maktab – Rasmiy veb-sayt",
     description:
-      "33-maktab – yosh avlod uchun bilim va ma’naviyat maskani. Yangiliklar va tadbirlar bilan tanishing.",
+      "84-maktab – yosh avlod uchun bilim va ma’naviyat maskani. Yangiliklar va tadbirlar bilan tanishing.",
     images: ["/og-image.jpg"],
     creator: "@33maktab",
   },
   icons: {
-    icon: "/gerb.svg",
-    apple: "/apple-touch-icon.png",
+    icon: "/gerv.svg",
+    apple: "/gerv.svg",
   },
   manifest: "/site.webmanifest",
-  metadataBase: new URL("https://33-maktab.uz"),
+  metadataBase: new URL("https://nam-school84.uz"),
   alternates: {
-    canonical: "https://33-maktab.uz",
+    canonical: "https://nam-school84.uz",
     languages: {
-      "uz-UZ": "https://33-maktab.uz/uz",
-      "ru-RU": "https://33-maktab.uz/ru",
-      "en-US": "https://33-maktab.uz/en",
+      "uz-UZ": "https://nam-school84.uz/uz",
+      "ru-RU": "https://nam-school84.uz/ru",
+      "en-US": "https://nam-school84.uz/en",
     },
   },
 };

@@ -8,19 +8,20 @@
   },
   "hero": {
     "title": "Bilim – Kelajak Kaliti",
-    "subtitle": "33-Maktabda",
+    "subtitle": "84-Maktabda",
     "description": "Bizning maktabimiz o'quvchilarga zamonaviy ta'lim, ma'naviy tarbiya va yuksak maqsad sari intilish uchun kuchli poydevor yaratadi.",
     "buttonNews": "Yangiliklarni ko‘rish",
     "buttonContact": "Biz bilan bog‘lanish"
   },
   "about": {
     "title": "Maktab haqida",
-    "description1": "33-Maktab – yosh avlod uchun bilim va ma’naviyat maskani. Bizning maqsadimiz o‘quvchilarni zamonaviy bilimlar bilan qurollantirish, mustaqil fikrlaydigan, vatanparvar va maqsadli yoshlarni tarbiyalashdir.",
-    "description2": "Maktabimizda tajribali o‘qituvchilar jamoasi, zamonaviy o‘quv xonalari, sport zallari va turli to‘garaklar mavjud. Har bir bola o‘z iste’dodini ochib berishi uchun keng imkoniyatlar yaratilgan.",
-    "image1Alt": "Maktab binosi",
-    "image2Alt": "O‘quvchilar dars jarayonida",
-    "image3Alt": "Kutubxona",
-    "image4Alt": "Sport zali"
+    "description1": "Bizning maktab – zamonaviy bilim, mustaqil fikrlash va ijodiy yondashuvni rivojlantiruvchi ta’lim maskani.",
+    "description2": "Har bir o‘quvchining qobiliyatini ochish, zamonaviy texnologiyalar orqali ta’lim sifatini oshirish va milliy qadriyatlarni asrab-avaylash – bizning ustuvor yo‘nalishimizdir.",
+    "stats": {
+      "students": "O‘quvchilar soni",
+      "teachers": "Tajribali o‘qituvchilar",
+      "achievements": "Yutuqlarimiz"
+    }
   },
   "carousel": {
     "title": "Foydali havolalar",
@@ -35,18 +36,21 @@
     }
   },
   "news": {
-    "title": "Yangiliklar",
-    "loading": "Yuklanmoqda...",
-    "empty": "Ma'lumotlar topilmadi",
+    "title": "So‘nggi yangiliklar",
+    "loading": "Ma'lumotlar yuklanmoqda...",
+    "errorTitle": "Server ishlamayapti",
+    "errorDesc": "Kechirasiz, hozir server bilan aloqa o‘rnatib bo‘lmadi. Keyinroq urinib ko‘ring.",
+    "retry": "Qayta urinib ko‘rish",
+    "empty": "Yangiliklar topilmadi",
+    "emptyDesc": "Hozircha bu bo‘limda yangiliklar mavjud emas.",
     "readMore": "Batafsil o‘qish"
   },
-
   "contact": {
     "title": "Biz bilan bog‘laning",
     "subtitle": "Sizning fikrlaringiz biz uchun muhim. Quyidagi forma orqali bizga yozib qoldiring yoki bevosita telefon orqali bog‘laning.",
     "address": {
       "title": "Manzil",
-      "text": "Toshkent shahri, Yunusobod tumani, 12-mavze, 33-maktab"
+      "text": "Namangan, Davlatobod tumani, ORZU MFY, OBOD KO'CHASI, 261-UY"
     },
     "phone": {
       "title": "Telefon"
@@ -65,11 +69,16 @@
     }
   },
   "employees": {
-    "title": "Bizning Hodimlar",
-    "empty": "Hodimlar topilmadi!"
+    "title": "Bizning jamoa",
+    "loading": "Ma'lumotlar yuklanmoqda...",
+    "errorTitle": "Server ishlamayapti",
+    "errorDesc": "Kechirasiz, hozir server bilan aloqa o‘rnatib bo‘lmadi. Keyinroq urinib ko‘ring.",
+    "retry": "Qayta urinib ko‘rish",
+    "empty": "Xodimlar topilmadi",
+    "emptyDesc": "Hozircha bu bo‘limda xodimlar mavjud emas."
   },
   "footer": {
-    "schoolName": "Maktab №1",
+    "schoolName": "Maktab №84",
     "description": "Bizning maktab – kelajak avlod uchun bilim va tarbiya maskani.",
     "linksTitle": "Havolalar",
     "links": {
@@ -79,8 +88,8 @@
       "contact": "Bog‘lanish"
     },
     "contactTitle": "Aloqa",
-    "address": "📍 Toshkent, Chilonzor",
-    "phone": "📞 +998 90 123 45 67",
+    "address": "📍 Namangan, Davlatobod tumani, ORZU MFY, OBOD KO'CHASI, 261-UY",
+    "phone": "📞 +998 91 350 00 74",
     "email": "✉️ info@maktab.uz",
     "copyright": "Barcha huquqlar himoyalangan."
   }

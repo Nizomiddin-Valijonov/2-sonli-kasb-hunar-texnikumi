@@ -24,7 +24,9 @@ export default function NewsDetailPage() {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const res = await axios.get(`http://localhost:5050/api/news/${id}`);
+        const res = await axios.get(
+          `https://api.nam-school84.uz/api/news/${id}`
+        );
         console.log("News detail:", res.data);
 
         // API tuzilmasiga qarab:
@@ -93,7 +95,10 @@ export default function NewsDetailPage() {
       {/* Image */}
       <div className="relative w-full h-72 sm:h-[400px] rounded-2xl overflow-hidden mb-6 shadow-md">
         <Image
-          src={news.img || "/images/default-news.jpg"}
+          src={
+            "https://api.nam-school84.uz/api/news" + news.img ||
+            "/images/default-news.jpg"
+          }
           alt={news.title}
           fill
           className="object-cover hover:scale-105 transition-transform duration-500"

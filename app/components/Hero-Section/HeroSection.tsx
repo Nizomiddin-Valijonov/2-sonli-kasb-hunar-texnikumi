@@ -12,7 +12,7 @@ function HeroSection() {
       className="relative bg-gradient-to-r from-primary to-purple-500 text-white py-24 md:py-32"
       id="main"
     >
-      <div className="container mx-auto flex flex-col md:flex-row items-center px-6 gap-10">
+      <div className="container mx-auto flex flex-col md:flex-row items-center px-6 gap-10 mt-52 md:mt-20">
         {/* Left content */}
         <div className="flex-1 text-center md:text-left">
           <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-6">

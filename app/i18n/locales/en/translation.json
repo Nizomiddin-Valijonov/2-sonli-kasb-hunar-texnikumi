@@ -8,19 +8,20 @@
   },
   "hero": {
     "title": "Knowledge – The Key to the Future",
-    "subtitle": "At School No. 33",
+    "subtitle": "At School No. 84",
     "description": "Our school provides students with modern education, moral upbringing, and a solid foundation to strive toward great goals.",
     "buttonNews": "View News",
     "buttonContact": "Contact Us"
   },
   "about": {
-    "title": "About the School",
-    "description1": "School No. 33 is a place of knowledge and values for the younger generation. Our goal is to provide students with modern education and nurture independent, patriotic, and goal-oriented youth.",
-    "description2": "Our school has experienced teachers, modern classrooms, sports halls, and various clubs. Every student has great opportunities to discover and develop their talents.",
-    "image1Alt": "School building",
-    "image2Alt": "Students during class",
-    "image3Alt": "Library",
-    "image4Alt": "Gym"
+    "title": "About Our School",
+    "description1": "Our school is a hub of modern education that fosters independent thinking and creativity.",
+    "description2": "We aim to unlock each student’s potential, enhance learning through technology, and preserve cultural values.",
+    "stats": {
+      "students": "Students Enrolled",
+      "teachers": "Experienced Teachers",
+      "achievements": "Our Achievements"
+    }
   },
   "carousel": {
     "title": "Useful Links",
@@ -36,16 +37,20 @@
   },
   "news": {
     "title": "Latest News",
-    "loading": "Loading...",
-    "empty": "No data found",
-    "readMore": "Read more"
+    "loading": "Loading data...",
+    "errorTitle": "Server Unavailable",
+    "errorDesc": "Sorry, we couldn’t connect to the server right now. Please try again later.",
+    "retry": "Try Again",
+    "empty": "No news found",
+    "emptyDesc": "There are currently no news articles available.",
+    "readMore": "Read More"
   },
   "contact": {
     "title": "Contact Us",
     "subtitle": "Your feedback is important to us. Send us a message using the form below or contact us directly by phone.",
     "address": {
       "title": "Address",
-      "text": "Tashkent, Yunusabad district, 12th quarter, School No. 33"
+      "text": "Tashkent, Yunusabad district, 12th quarter, School No. 84"
     },
     "phone": {
       "title": "Phone"
@@ -64,11 +69,16 @@
     }
   },
   "employees": {
-    "title": "Our Employees",
-    "empty": "Employees not found!"
+    "title": "Our Team",
+    "loading": "Loading data...",
+    "errorTitle": "Server Unavailable",
+    "errorDesc": "Sorry, we couldn't connect to the server right now. Please try again later.",
+    "retry": "Try Again",
+    "empty": "No employees found",
+    "emptyDesc": "There are currently no employees in this section."
   },
   "footer": {
-    "schoolName": "School No.1",
+    "schoolName": "School No.84",
     "description": "Our school is a place of knowledge and education for the future generation.",
     "linksTitle": "Links",
     "links": {
@@ -78,8 +88,8 @@
       "contact": "Contact"
     },
     "contactTitle": "Contact",
-    "address": "📍 Tashkent, Chilonzor",
-    "phone": "📞 +998 90 123 45 67",
+    "address": "📍 Namangan, Davlatobod region, Orzu neighborhood, Obod street, house 261",
+    "phone": "📞 +998 91 350 00 74",
     "email": "✉️ info@maktab.uz",
     "copyright": "All rights reserved."
   }

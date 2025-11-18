@@ -13,6 +13,7 @@ import egovLogo from "../../assets/Government Logos/egov.png";
 import hukumatPortali from "../../assets/Government Logos/hukumat portali.jpg";
 import kutubxona from "../../assets/Government Logos/kutubxona.jpg";
 import ochiqAxborot from "../../assets/Government Logos/ochiq axborot.jpg";
+import gerb from "../../assets/gerb.svg";
 
 const CarouselLinks = () => {
   const { t } = useTranslation();
@@ -20,13 +21,13 @@ const CarouselLinks = () => {
   const links = [
     {
       id: 1,
-      img: "/gerb.svg",
+      img: gerb,
       title: t("carousel.links.1"),
       url: "https://president.uz",
     },
     {
       id: 2,
-      img: "/gerb.svg",
+      img: gerb,
       title: t("carousel.links.2"),
       url: "https://pm.gov.uz",
     },
@@ -56,7 +57,7 @@ const CarouselLinks = () => {
     },
     {
       id: 7,
-      img: "/gerb.svg",
+      img: gerb,
       title: t("carousel.links.7"),
       url: "https://constitution.uz",
     },
