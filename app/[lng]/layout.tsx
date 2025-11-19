@@ -50,8 +50,8 @@ export const metadata: Metadata = {
     creator: "@33maktab",
   },
   icons: {
-    icon: "/gerv.svg",
-    apple: "/gerv.svg",
+    icon: "/gerb.svg",
+    apple: "/gerb.svg",
   },
   manifest: "/site.webmanifest",
   metadataBase: new URL("https://nam-school84.uz"),

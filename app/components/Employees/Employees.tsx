@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
-import axios from "axios";
 import { useTranslation } from "react-i18next";
-import { AlertCircle, WifiOff } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { getEmployees, getImageUrl } from "../../services/api";
+import LoadingState from "../ui/LoadingState";
+import ErrorState from "../ui/ErrorState";
+import EmptyState from "../ui/EmptyState";
 
 interface Employee {
   id: number;
@@ -16,101 +19,80 @@ interface Employee {
 
 const Employees = () => {
   const { t } = useTranslation();
+  const pathname = usePathname();
   const [staff, setStaff] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const currentLang =
+    pathname.split("/")[1] &&
+    ["uz", "en", "ru"].includes(pathname.split("/")[1])
+      ? pathname.split("/")[1]
+      : "uz";
 
-        const lang = localStorage.getItem("i18nextLng") || "uz";
-        const response = await axios.get(
-          `https://api.nam-school84.uz/api/employees?lang=${lang}`
-        );
+  const fetchEmployees = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        const data =
-          Array.isArray(response.data?.data) && response.data.data.length
-            ? response.data.data
-            : Array.isArray(response.data)
+      const response = await getEmployees(currentLang);
+
+      const data =
+        Array.isArray(response.data?.data) && response.data.data.length
+          ? response.data.data
+          : Array.isArray(response.data)
             ? response.data
             : [];
 
-        if (!data.length) setError(t("employees.empty"));
-        setStaff(data);
-      } catch (err) {
-        setError(t("employees.error") || "Server bilan aloqa yo‘q.");
-      } finally {
-        setLoading(false);
-      }
-    };
+      if (!data.length) setError("empty");
+      setStaff(data);
+    } catch {
+      setError("network");
+    } finally {
+      setLoading(false);
+    }
+  }, [currentLang]);
 
+  useEffect(() => {
     fetchEmployees();
-  }, [t]);
+  }, [fetchEmployees]);
 
-  // ⏳ LOADING STATE
-  if (loading)
+  if (loading) {
     return (
-      <section className="py-24 bg-gray-50 text-center">
-        <h2 className="text-2xl font-semibold text-gray-600 mb-6">
-          {t("employees.loading")}
-        </h2>
-        <div className="flex justify-center gap-6">
-          {[...Array(4)].map((_, i) => (
-            <div
-              key={i}
-              className="w-48 h-56 bg-gray-200 rounded-2xl animate-pulse"
-            ></div>
-          ))}
-        </div>
-      </section>
+      <LoadingState
+        message={t("employees.loading")}
+        skeletonCount={4}
+        skeletonClassName="w-48 h-56 bg-gray-200 rounded-2xl animate-pulse"
+      />
     );
+  }
 
-  // ❌ ERROR STATE (Server ishlamagan yoki API xato)
-  if (error && !staff.length)
+  if (error === "network" && !staff.length) {
     return (
-      <section className="py-32 bg-gradient-to-b from-red-50 to-white text-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="bg-red-100 text-red-600 p-6 rounded-full">
-            <WifiOff size={48} />
-          </div>
-          <h2 className="text-3xl font-bold text-red-700">
-            {t("employees.errorTitle") || "Server ishlamayapti"}
-          </h2>
-          <p className="text-gray-600 max-w-md mx-auto">
-            {t("employees.errorDesc") ||
-              "Kechirasiz, hozir server bilan aloqa o‘rnatib bo‘lmadi. Keyinroq urinib ko‘ring."}
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-6 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-          >
-            {t("employees.retry") || "Qayta urinib ko‘rish"}
-          </button>
-        </div>
-      </section>
+      <ErrorState
+        title={t("employees.errorTitle") || "Server ishlamayapti"}
+        description={
+          t("employees.errorDesc") ||
+          "Kechirasiz, hozir server bilan aloqa o'rnatib bo'lmadi. Keyinroq urinib ko'ring."
+        }
+        retryText={t("employees.retry") || "Qayta urinib ko'rish"}
+        onRetry={fetchEmployees}
+      />
     );
+  }
 
-  // ⚠️ BO‘SH STATE
-  if (!staff.length)
+  if (!staff.length) {
     return (
-      <section className="py-32 bg-gray-100 text-center">
-        <div className="flex flex-col items-center gap-3">
-          <AlertCircle size={48} className="text-gray-500" />
-          <h2 className="text-2xl font-semibold text-gray-700">
-            {t("employees.empty") || "Xodimlar topilmadi"}
-          </h2>
-          <p className="text-gray-500">
-            {t("employees.emptyDesc") ||
-              "Hozircha bu bo‘limda xodimlar mavjud emas."}
-          </p>
-        </div>
-      </section>
+      <EmptyState
+        title={t("employees.empty") || "Xodimlar topilmadi"}
+        description={
+          t("employees.emptyDesc") ||
+          "Hozircha bu bo'limda xodimlar mavjud emas."
+        }
+      />
     );
+  }
 
-  // ✅ ASOSIY CONTENT
   return (
     <section
       className="py-24 px-6 bg-gradient-to-b from-gray-50 to-gray-100"
@@ -121,35 +103,29 @@ const Employees = () => {
           {t("employees.title")}
         </h2>
 
-        <div
-          className="
-            grid 
-            grid-cols-1 
-            sm:grid-cols-2 
-            md:grid-cols-3 
-            lg:grid-cols-4 
-            gap-8 
-            auto-rows-[320px]
-          "
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 auto-rows-[320px]">
           {staff.map((person) => {
-            const lang = localStorage.getItem("i18nextLng") || "uz";
             const role =
               typeof person.role === "object"
-                ? person.role[lang as "uz" | "ru" | "en"] || person.role.uz
+                ? person.role[currentLang as "uz" | "ru" | "en"] ||
+                  person.role.uz
                 : person.role;
+
+            const imageUrl = getImageUrl(person.img, "employees");
 
             return (
               <div
                 key={person.id}
-                className={`relative bg-white overflow-hidden rounded-2xl shadow-md 
-                flex flex-col items-center justify-center text-center p-6 
-                transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02]
-                ${
-                  person.highlight
-                    ? "lg:col-span-2 bg-gradient-to-br from-indigo-600 via-primary to-secondary text-white"
-                    : ""
-                }`}
+                className={`
+                  relative bg-white overflow-hidden rounded-2xl shadow-md
+                  flex flex-col items-center justify-center text-center p-6
+                  transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02]
+                  ${
+                    person.highlight
+                      ? "lg:col-span-2 bg-gradient-to-br from-indigo-600 via-primary to-secondary text-white"
+                      : ""
+                  }
+                `}
               >
                 <div
                   className={`relative ${
@@ -157,11 +133,7 @@ const Employees = () => {
                   } mb-4`}
                 >
                   <Image
-                    src={
-                      person.img
-                        ? `https://api.nam-school84.uz/api/employees${person.img}`
-                        : "/default-avatar.png"
-                    }
+                    src={imageUrl || "/default-avatar.png"}
                     alt={person.name}
                     fill
                     className={`object-cover rounded-full border-4 ${
@@ -186,7 +158,7 @@ const Employees = () => {
                 </p>
 
                 {person.highlight && (
-                  <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,white,transparent_70%)] pointer-events-none"></div>
+                  <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,white,transparent_70%)] pointer-events-none" />
                 )}
               </div>
             );
