@@ -53,10 +53,10 @@ const Navbar = ({ lng }: { lng: string }) => {
           />
           <div className="leading-tight pl-3">
             <h2 className="text-[10px] md:text-[13px] font-semibold uppercase tracking-wide">
-              NAMANGAN VILOYATI DAVLATOBOD TUMANI
+              NAMANGAN VILOYATI
             </h2>
             <h2 className="text-[9px] md:text-[13px] font-bold uppercase tracking-wide">
-              84-SONLI UMUMTA’LIM MAKTABI
+              2-SONLI KASB HUNAR TEXNIKUMI
             </h2>
             <h4 className="text-[12px] text-gray-200 italic">
               rasmiy veb-sayti
@@ -68,7 +68,7 @@ const Navbar = ({ lng }: { lng: string }) => {
         <div className="flex items-center gap-5">
           <div className="hidden md:flex flex-col items-end text-right">
             <p className="text-lg font-semibold hover:text-green-300 transition-colors duration-300 cursor-pointer">
-              91 350 00 74
+              +998 69 233 35 92
             </p>
             <p className="text-xs text-gray-200">Ishonch telefoni</p>
           </div>

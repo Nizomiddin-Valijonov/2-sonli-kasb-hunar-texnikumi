@@ -1,25 +1,25 @@
 {
   "navbar": {
     "main": "Home",
-    "about": "About School",
+    "about": "About College",
     "employees": "Staff",
     "news": "News",
     "contact": "Contact"
   },
   "hero": {
-    "title": "Knowledge – The Key to the Future",
-    "subtitle": "At School No. 84",
-    "description": "Our school provides students with modern education, moral upbringing, and a solid foundation to strive toward great goals.",
+    "title": "Mastering a Profession – Key to the Future",
+    "subtitle": "At Vocational College",
+    "description": "Our college provides students with modern vocational education, hands-on skills, and a solid foundation to become competitive in the job market.",
     "buttonNews": "View News",
     "buttonContact": "Contact Us"
   },
   "about": {
-    "title": "About Our School",
-    "description1": "Our school is a hub of modern education that fosters independent thinking and creativity.",
-    "description2": "We aim to unlock each student’s potential, enhance learning through technology, and preserve cultural values.",
+    "title": "About Our College",
+    "description1": "Our college is a hub of modern vocational education that fosters technical thinking and practical craftsmanship.",
+    "description2": "We aim to unlock each student's professional potential, provide modern workshops and equipment, and build real-world work skills.",
     "stats": {
       "students": "Students Enrolled",
-      "teachers": "Experienced Teachers",
+      "teachers": "Experienced Instructors & Masters",
       "achievements": "Our Achievements"
     }
   },
@@ -30,7 +30,7 @@
       "2": "Virtual reception of the President of the Republic of Uzbekistan",
       "3": "Government portal of the Republic of Uzbekistan",
       "4": "Unified interactive public services portal",
-      "5": "Republican Children's Library",
+      "5": "Vocational Education Center of the Republic of Uzbekistan",
       "6": "Open Data Portal of the Republic of Uzbekistan",
       "7": "Constitution of the Republic of Uzbekistan"
     }
@@ -39,7 +39,7 @@
     "title": "Latest News",
     "loading": "Loading data...",
     "errorTitle": "Server Unavailable",
-    "errorDesc": "Sorry, we couldn’t connect to the server right now. Please try again later.",
+    "errorDesc": "Sorry, we couldn't connect to the server right now. Please try again later.",
     "retry": "Try Again",
     "empty": "No news found",
     "emptyDesc": "There are currently no news articles available.",
@@ -50,7 +50,7 @@
     "subtitle": "Your feedback is important to us. Send us a message using the form below or contact us directly by phone.",
     "address": {
       "title": "Address",
-      "text": "Tashkent, Yunusabad district, 12th quarter, School No. 84"
+      "text": "Namangan city, Amir Temur Street, 101"
     },
     "phone": {
       "title": "Phone"
@@ -78,8 +78,8 @@
     "emptyDesc": "There are currently no employees in this section."
   },
   "footer": {
-    "schoolName": "School No.84",
-    "description": "Our school is a place of knowledge and education for the future generation.",
+    "schoolName": "Vocational College",
+    "description": "Our college provides quality vocational education and practical training for young people.",
     "linksTitle": "Links",
     "links": {
       "home": "Home",
@@ -88,9 +88,18 @@
       "contact": "Contact"
     },
     "contactTitle": "Contact",
-    "address": "📍 Namangan, Davlatobod region, Orzu neighborhood, Obod street, house 261",
-    "phone": "📞 +998 91 350 00 74",
-    "email": "✉️ info@maktab.uz",
+    "address": "📍 Namangan city, Amir Temur Street, 101",
+    "phone": "📞 +998 69 233 35 92",
+    "email": "✉️ info@namangan2sonkxm.uz",
     "copyright": "All rights reserved."
+  },
+  "travel360": {
+    "title": "360° VR Tour",
+    "subtitle": "Rotate your device for a full immersive experience",
+    "previous": "Previous",
+    "next": "Next",
+    "resetOrientation": "Reset Orientation",
+    "vrInstruction": "Use mouse or finger to rotate - 360° view",
+    "loading": "Loading VR experience..."
   }
 }

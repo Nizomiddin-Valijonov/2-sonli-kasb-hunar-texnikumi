@@ -1,0 +1,14 @@
+RewriteEngine On
+
+# Agar haqiqiy fayl yoki papka bo‘lsa → shu yerga borsin
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Til URL'larini mos fayllarga yo'naltirish
+RewriteRule ^uz/?$ uz.html [L]
+RewriteRule ^ru/?$ ru.html [L]
+RewriteRule ^en/?$ en.html [L]
+
+# Notanish URL bo'lsa → default uz.html ga tushirsin
+RewriteRule ^.*$ uz.html [L]

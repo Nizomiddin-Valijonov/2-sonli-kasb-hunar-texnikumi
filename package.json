@@ -10,6 +10,8 @@
     "format": "biome format --write"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
     "axios": "^1.12.2",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.24",
@@ -21,7 +23,8 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-i18next": "^16.0.1",
-    "swiper": "^12.0.2"
+    "swiper": "^12.0.2",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

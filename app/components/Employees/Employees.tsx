@@ -111,7 +111,7 @@ const Employees = () => {
                   person.role.uz
                 : person.role;
 
-            const imageUrl = getImageUrl(person.img, "employees");
+            const imageUrl = getImageUrl(person.img, "employees") || "/gerb.svg";
 
             return (
               <div
@@ -133,7 +133,7 @@ const Employees = () => {
                   } mb-4`}
                 >
                   <Image
-                    src={imageUrl || "/default-avatar.png"}
+                    src={imageUrl}
                     alt={person.name}
                     fill
                     className={`object-cover rounded-full border-4 ${

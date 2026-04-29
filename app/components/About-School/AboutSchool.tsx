@@ -11,7 +11,7 @@ const AboutSchool = () => {
   const stats = [
     {
       icon: <Users2 className="w-8 h-8 text-indigo-600" />,
-      number: "100+",
+      number: "800+",
       label: t("about.stats.students"),
     },
     {

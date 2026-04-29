@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "lang": "uz",
+    "name": "qwerty",
+    "role": {
+      "uz": "123456",
+      "en": "123456",
+      "ru": "123456"
+    },
+    "img": "/uploads/employees/1777466451225-Shox-1-.png",
+    "highlight": true
+  },
+  {
+    "id": 2,
+    "lang": "en",
+    "name": "qwerty",
+    "role": {
+      "uz": "123456",
+      "en": "123456",
+      "ru": "123456"
+    },
+    "img": "/uploads/employees/1777466451225-Shox-1-.png",
+    "highlight": true
+  },
+  {
+    "id": 3,
+    "lang": "ru",
+    "name": "qwerty",
+    "role": {
+      "uz": "123456",
+      "en": "123456",
+      "ru": "123456"
+    },
+    "img": "/uploads/employees/1777466451225-Shox-1-.png",
+    "highlight": true
+  }
+]

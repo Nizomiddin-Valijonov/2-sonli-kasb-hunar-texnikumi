@@ -1,25 +1,25 @@
 {
   "navbar": {
     "main": "Asosiy",
-    "about": "Maktab haqida",
+    "about": "Texnikum haqida",
     "employees": "Hodimlar",
     "news": "Yangiliklar",
     "contact": "Aloqa"
   },
   "hero": {
-    "title": "Bilim – Kelajak Kaliti",
-    "subtitle": "84-Maktabda",
-    "description": "Bizning maktabimiz o'quvchilarga zamonaviy ta'lim, ma'naviy tarbiya va yuksak maqsad sari intilish uchun kuchli poydevor yaratadi.",
+    "title": "Kasb egasi – Kelajak kaliti",
+    "subtitle": "Kasb-hunar texnikumida",
+    "description": "Bizning texnikum yoshlarga zamonaviy kasb-hunar, amaliy tajriba va mehnat bozorida raqobatbardosh bo‘lish uchun mustahkam bilim va ko‘nikmalarni taqdim etadi.",
     "buttonNews": "Yangiliklarni ko‘rish",
     "buttonContact": "Biz bilan bog‘lanish"
   },
   "about": {
-    "title": "Maktab haqida",
-    "description1": "Bizning maktab – zamonaviy bilim, mustaqil fikrlash va ijodiy yondashuvni rivojlantiruvchi ta’lim maskani.",
-    "description2": "Har bir o‘quvchining qobiliyatini ochish, zamonaviy texnologiyalar orqali ta’lim sifatini oshirish va milliy qadriyatlarni asrab-avaylash – bizning ustuvor yo‘nalishimizdir.",
+    "title": "Texnikum haqida",
+    "description1": "Bizning texnikum – zamonaviy kasb-hunar, texnologik bilim va mehnatga ijodiy yondashuvni rivojlantiruvchi ta’lim maskani.",
+    "description2": "Har bir o‘quvchining kasbiy mahoratini ochish, amaliy ko‘nikmalarni rivojlantirish, zamonaviy ustaxonalar va jihozlar bilan ta’minlash – bizning ustuvor yo‘nalishimizdir.",
     "stats": {
-      "students": "O‘quvchilar soni",
-      "teachers": "Tajribali o‘qituvchilar",
+      "students": "Talabalar soni",
+      "teachers": "Tajribali o‘qituvchi va ustalar",
       "achievements": "Yutuqlarimiz"
     }
   },
@@ -30,7 +30,7 @@
       "2": "O‘zbekiston Respublikasi Prezidentining Virtual qabulxonasi",
       "3": "O‘zbekiston Respublikasi Hukumat portali",
       "4": "Yagona interaktiv davlat xizmatlari portali",
-      "5": "Respublika bolalar kutubxonasi",
+      "5": "O‘zbekiston kasb-hunar ta’limi markazi",
       "6": "O‘zbekiston Respublikasi ochiq axborot portali",
       "7": "O‘zbekiston Respublikasi Konstitutsiyasi"
     }
@@ -50,13 +50,13 @@
     "subtitle": "Sizning fikrlaringiz biz uchun muhim. Quyidagi forma orqali bizga yozib qoldiring yoki bevosita telefon orqali bog‘laning.",
     "address": {
       "title": "Manzil",
-      "text": "Namangan, Davlatobod tumani, ORZU MFY, OBOD KO'CHASI, 261-UY"
+      "text": "Namangan shahri, Amir Temur ko‘chasi, 101-uy"
     },
     "phone": {
       "title": "Telefon"
     },
     "email": {
-      "title": "Email"
+      "title": "Elektron pochta"
     },
     "form": {
       "name": "Ismingiz",
@@ -68,6 +68,11 @@
       "send": "Yuborish"
     }
   },
+  "travel360": {
+    "title": "360° Sayohat",
+    "subtitle": "Texnikumimizning virtual 360 darajali sayohatini ko‘ring. Rasmlar app/assets/360 papkasidan olinadi.",
+    "resources": "Resurslar: app/assets/360"
+  },
   "employees": {
     "title": "Bizning jamoa",
     "loading": "Ma'lumotlar yuklanmoqda...",
@@ -78,8 +83,8 @@
     "emptyDesc": "Hozircha bu bo‘limda xodimlar mavjud emas."
   },
   "footer": {
-    "schoolName": "Maktab №84",
-    "description": "Bizning maktab – kelajak avlod uchun bilim va tarbiya maskani.",
+    "schoolName": "Kasb-hunar texnikumi",
+    "description": "Bizning texnikum – yoshlar uchun sifatli kasb-hunar ta’limi va amaliy tayyorgarlik maskani.",
     "linksTitle": "Havolalar",
     "links": {
       "home": "Bosh sahifa",
@@ -88,9 +93,18 @@
       "contact": "Bog‘lanish"
     },
     "contactTitle": "Aloqa",
-    "address": "📍 Namangan, Davlatobod tumani, ORZU MFY, OBOD KO'CHASI, 261-UY",
-    "phone": "📞 +998 91 350 00 74",
-    "email": "✉️ info@maktab.uz",
+    "address": "📍 Namangan shahri, Amir Temur ko‘chasi, 101-uy",
+    "phone": "📞 +998 69 233 35 92",
+    "email": "✉️ info@namangan2sonkxm.uz",
     "copyright": "Barcha huquqlar himoyalangan."
+  },
+  "travel360": {
+    "title": "360° VR Sayohat",
+    "subtitle": "Atrofingizni aylantiring va to‘liq immersiv tajribaga ega bo‘ling",
+    "previous": "Oldingi",
+    "next": "Keyingi",
+    "resetOrientation": "Markazga qaytarish",
+    "vrInstruction": "Sichqoncha yoki barmoq bilan harakatlantiring – 360° ko‘rinish",
+    "loading": "VR tajriba yuklanmoqda..."
   }
 }

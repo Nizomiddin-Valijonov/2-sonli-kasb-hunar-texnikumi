@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "lang": "uz",
+    "title": "Kirish Koridori",
+    "description": "Maktabning virtual 360 daraja sayohati uchun panoramik rasm.",
+    "img": "/360/photo.jpg",
+    "order": 1
+  },
+  {
+    "id": 2,
+    "lang": "en",
+    "title": "Entrance Corridor",
+    "description": "A panoramic 360 view of the school entrance area.",
+    "img": "/360/photo.jpg",
+    "order": 1
+  },
+  {
+    "id": 3,
+    "lang": "ru",
+    "title": "Входной Коридор",
+    "description": "Панорамный 360-градусный вид входной зоны школы.",
+    "img": "/360/photo.jpg",
+    "order": 1
+  }
+]

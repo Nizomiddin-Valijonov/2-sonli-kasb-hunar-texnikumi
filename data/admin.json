@@ -1,0 +1,7 @@
+{
+  "passwordHash": "6e5837b5ae13bc8d179544616023c46f4aca705ee9d67c6c31b62f3f55ca993010b7ca2254e889368209525d6bd75e723bc0d37eded34cc6e4573170e0fb60c7",
+  "salt": "e826d1bbb0f81c6fdbaccdcccdebb26b",
+  "sessions": [
+    "e116eb0fbc5175264219ce84ebfd9c3e8701124c4fbbd9a8eed20802ebf00473"
+  ]
+}

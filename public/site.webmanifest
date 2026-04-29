@@ -1,0 +1,21 @@
+{
+  "name": "84-maktab – Rasmiy veb-sayt",
+  "short_name": "84-maktab",
+  "start_url": "/uz",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a73e8",
+  "description": "84-maktab – yosh avlod uchun bilim va ma’naviyat maskani. Yangiliklar, tadbirlar va ta’lim jarayoni haqida ma’lumot.",
+  "icons": [
+    {
+      "src": "/gerb.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/gerb.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
