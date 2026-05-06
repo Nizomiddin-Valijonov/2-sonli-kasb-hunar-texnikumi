@@ -2,14 +2,14 @@
 
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
-import logo from "../../assets/Logo/logo.svg";
+import logo from "../../assets/Logo/hero_logo.png";
 
 function HeroSection() {
   const { t } = useTranslation();
 
   return (
     <section
-      className="relative bg-gradient-to-r from-primary to-purple-500 text-white py-24 md:py-32"
+      className="relative bg-gradient-to-br from-[#013D8C] to-violet-500 text-white py-24 md:py-32"
       id="main"
     >
       <div className="container mx-auto flex flex-col md:flex-row items-center px-6 gap-10 mt-52 md:mt-20">
@@ -45,7 +45,7 @@ function HeroSection() {
           <Image
             src={logo}
             alt="Maktab illustration"
-            className="w-72 md:w-96 drop-shadow-lg"
+            className="w-72 md:w-full drop-shadow-lg drop-shadow-blue-300"
           />
         </div>
       </div>

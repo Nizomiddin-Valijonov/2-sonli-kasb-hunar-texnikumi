@@ -2,16 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_COOKIE_NAME } from "@/lib/server-utils";
 import { verifyAdminSession } from "@/lib/auth";
 import { readNews, writeNews, Language, NewsItem } from "@/lib/data";
-import { sanitizeText, sanitizeImagePath, sanitizeLang, isValidDate } from "@/lib/validation";
+import {
+  sanitizeText,
+  sanitizeImagePath,
+  sanitizeLang,
+  isValidDate,
+} from "@/lib/validation";
 
 const allowedLanguages: Language[] = ["uz", "en", "ru"];
 
-function createNewsItem(payload: any, lang: Language, common: { img?: string; date?: string } = {}): NewsItem | null {
+function createNewsItem(
+  payload: any,
+  lang: Language,
+  common: { img?: string; date?: string } = {},
+): NewsItem | null {
   const title = sanitizeText(payload?.title, 3, 250);
   const desc = sanitizeText(payload?.desc, 10, 1000);
   const fullText = sanitizeText(payload?.fullText, 10, 5000);
   const img = sanitizeImagePath(payload?.img || common.img);
-  const date = isValidDate(payload?.date || common.date) || new Date().toISOString().slice(0, 10);
+  const date =
+    isValidDate(payload?.date || common.date) ||
+    new Date().toISOString().slice(0, 10);
 
   if (!title || !desc || !fullText || !img) {
     return null;
@@ -39,12 +50,19 @@ function sanitizeNewsBody(payload: any): NewsItem[] | null {
     const common = { img: payload?.img, date: payload?.date };
 
     for (const lang of allowedLanguages) {
-      const item = createNewsItem(translations[lang], lang, common);
-      if (!item) return null;
+      const translationData = translations[lang];
+      if (!translationData || typeof translationData !== "object") {
+        continue;
+      }
+
+      const item = createNewsItem(translationData, lang, common);
+      if (!item) {
+        return null;
+      }
       items.push(item);
     }
 
-    return items;
+    return items.length > 0 ? items : null;
   }
 
   const lang = sanitizeLang(payload?.lang) || "uz";
@@ -55,7 +73,8 @@ function sanitizeNewsBody(payload: any): NewsItem[] | null {
 export async function GET(req: NextRequest) {
   const lang = req.nextUrl.searchParams.get("lang") || "all";
   const allNews = await readNews();
-  const filtered = lang !== "all" ? allNews.filter((item) => item.lang === lang) : allNews;
+  const filtered =
+    lang !== "all" ? allNews.filter((item) => item.lang === lang) : allNews;
   return NextResponse.json({ data: filtered });
 }
 
@@ -68,7 +87,10 @@ export async function POST(req: NextRequest) {
   const payload = await req.json();
   const items = sanitizeNewsBody(payload);
   if (!items || items.length === 0) {
-    return NextResponse.json({ error: "Invalid news payload." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid news payload." },
+      { status: 400 },
+    );
   }
 
   const allNews = await readNews();

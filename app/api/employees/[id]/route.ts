@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_COOKIE_NAME } from "@/lib/server-utils";
 import { verifyAdminSession } from "@/lib/auth";
-import { readEmployees, writeEmployees, Language, EmployeeItem } from "@/lib/data";
-import { sanitizeText, sanitizeImagePath, sanitizeLang } from "@/lib/validation";
+import {
+  readEmployees,
+  writeEmployees,
+  Language,
+  EmployeeItem,
+} from "@/lib/data";
+import {
+  sanitizeText,
+  sanitizeImagePath,
+  sanitizeLang,
+} from "@/lib/validation";
 
 const allowedLanguages: Language[] = ["uz", "en", "ru"];
 
@@ -56,7 +65,10 @@ function sanitizeEmployeeUpdates(payload: any): Partial<EmployeeItem> | null {
   return Object.keys(result).length ? result : null;
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } },
+) {
   const allEmployees = await readEmployees();
   const item = allEmployees.find((entry) => entry.id === Number(params.id));
   if (!item) {
@@ -65,7 +77,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json({ data: item });
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } },
+) {
   const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
   if (!(await verifyAdminSession(token))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -78,7 +93,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 
   const allEmployees = await readEmployees();
-  const index = allEmployees.findIndex((entry) => entry.id === Number(params.id));
+  const index = allEmployees.findIndex(
+    (entry) => entry.id === Number(params.id),
+  );
   if (index === -1) {
     return NextResponse.json({ error: "Not found." }, { status: 404 });
   }
@@ -89,14 +106,19 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json({ data: allEmployees[index] });
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } },
+) {
   const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
   if (!(await verifyAdminSession(token))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const allEmployees = await readEmployees();
-  const remaining = allEmployees.filter((entry) => entry.id !== Number(params.id));
+  const remaining = allEmployees.filter(
+    (entry) => entry.id !== Number(params.id),
+  );
   if (remaining.length === allEmployees.length) {
     return NextResponse.json({ error: "Not found." }, { status: 404 });
   }

@@ -5,9 +5,9 @@ import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { usePathname } from "next/navigation";
 import { getEmployees, getImageUrl } from "../../services/api";
-import LoadingState from "../ui/LoadingState";
-import ErrorState from "../ui/ErrorState";
-import EmptyState from "../ui/EmptyState";
+import LoadingState from "../../ui/LoadingState";
+import ErrorState from "../../ui/ErrorState";
+import EmptyState from "../../ui/EmptyState";
 
 interface Employee {
   id: number;
@@ -111,7 +111,8 @@ const Employees = () => {
                   person.role.uz
                 : person.role;
 
-            const imageUrl = getImageUrl(person.img, "employees") || "/gerb.svg";
+            const imageUrl =
+              getImageUrl(person.img, "employees") || "/gerb.svg";
 
             return (
               <div

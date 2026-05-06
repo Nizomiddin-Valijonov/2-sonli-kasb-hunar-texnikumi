@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { changeAdminPassword, revokeAdminSession, verifyAdminSession, createAdminSession } from "@/lib/auth";
-import { ADMIN_COOKIE_NAME, createAdminCookieResponse, clearAdminCookieResponse } from "@/lib/server-utils";
+import {
+  changeAdminPassword,
+  revokeAdminSession,
+  verifyAdminSession,
+  createAdminSession,
+} from "@/lib/auth";
+import {
+  ADMIN_COOKIE_NAME,
+  createAdminCookieResponse,
+  clearAdminCookieResponse,
+} from "@/lib/server-utils";
 
 export async function POST(req: NextRequest) {
   const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
@@ -14,12 +23,18 @@ export async function POST(req: NextRequest) {
   const newPassword = String(body?.newPassword || "").trim();
 
   if (!currentPassword || !newPassword) {
-    return NextResponse.json({ error: "Current and new password are required." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Current and new password are required." },
+      { status: 400 },
+    );
   }
 
   const changed = await changeAdminPassword(currentPassword, newPassword);
   if (!changed) {
-    return NextResponse.json({ error: "Current password is incorrect." }, { status: 401 });
+    return NextResponse.json(
+      { error: "Current password is incorrect." },
+      { status: 401 },
+    );
   }
 
   await revokeAdminSession(token);

@@ -2,37 +2,37 @@
   {
     "id": 1,
     "lang": "uz",
-    "name": "qwerty",
+    "name": "NIZOMIDDIN",
     "role": {
-      "uz": "123456",
-      "en": "123456",
-      "ru": "123456"
+      "uz": "ADF",
+      "en": "FDA",
+      "ru": "DFA"
     },
-    "img": "/uploads/employees/1777466451225-Shox-1-.png",
+    "img": "/uploads/employees/1777631039861-BG_1.jpg",
     "highlight": true
   },
   {
     "id": 2,
     "lang": "en",
-    "name": "qwerty",
+    "name": "NIZOMIDDIN",
     "role": {
-      "uz": "123456",
-      "en": "123456",
-      "ru": "123456"
+      "uz": "ADF",
+      "en": "FDA",
+      "ru": "DFA"
     },
-    "img": "/uploads/employees/1777466451225-Shox-1-.png",
+    "img": "/uploads/employees/1777631039861-BG_1.jpg",
     "highlight": true
   },
   {
     "id": 3,
     "lang": "ru",
-    "name": "qwerty",
+    "name": "NIZOMIDDIN",
     "role": {
-      "uz": "123456",
-      "en": "123456",
-      "ru": "123456"
+      "uz": "ADF",
+      "en": "FDA",
+      "ru": "DFA"
     },
-    "img": "/uploads/employees/1777466451225-Shox-1-.png",
+    "img": "/uploads/employees/1777631039861-BG_1.jpg",
     "highlight": true
   }
 ]

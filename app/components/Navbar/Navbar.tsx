@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../Language-Switcher/LanguageSwitcher";
 import i18n from "../../i18n";
 import Image from "next/image";
-import logo from "../../assets/UzEDU.png";
+import logo from "../../assets/Logo/miniLogo.png";
 
 const Navbar = ({ lng }: { lng: string }) => {
   const [open, setOpen] = useState(false);
@@ -48,15 +48,15 @@ const Navbar = ({ lng }: { lng: string }) => {
           <Image
             src={logo}
             alt="UzEDU Logo"
-            className="h-12 w-auto object-contain scale-185"
+            className="h-9 w-auto object-cover scale-185 bg-white rounded-full"
             priority
           />
           <div className="leading-tight pl-3">
             <h2 className="text-[10px] md:text-[13px] font-semibold uppercase tracking-wide">
-              NAMANGAN VILOYATI
+              NAMANGAN SHAHAR
             </h2>
             <h2 className="text-[9px] md:text-[13px] font-bold uppercase tracking-wide">
-              2-SONLI KASB HUNAR TEXNIKUMI
+              2-SONLI TEXNIKUMI
             </h2>
             <h4 className="text-[12px] text-gray-200 italic">
               rasmiy veb-sayti

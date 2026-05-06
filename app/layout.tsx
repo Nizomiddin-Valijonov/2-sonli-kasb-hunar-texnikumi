@@ -8,63 +8,69 @@ const rubikSans = Rubik({
 });
 
 export const metadata: Metadata = {
-  title: "84-maktab – Rasmiy veb-sayt",
+  title: "2-son Kasb-hunar kolleji – Rasmiy veb-sayt",
   description:
-    "84-maktab – yosh avlod uchun bilim va ma’naviyat maskani. O‘quvchilar uchun yangiliklar, tadbirlar, ta’lim muhitidan xabardor bo‘ling.",
+    "2-son kasb-hunar kolleji – zamonaviy kasblarni o‘rganish, amaliy bilim va malaka olish maskani. Yo‘nalishlar, yangiliklar va qabul haqida batafsil ma’lumot.",
   keywords: [
-    "84-maktab",
-    "maktab",
-    "Uzbekistan school",
+    "2-son kasb-hunar kolleji",
+    "kollej",
+    "kasb-hunar",
     "ta’lim",
-    "maktab yangiliklari",
-    "o‘quvchilar",
-    "uzedu",
+    "uzbekistan college",
+    "texnikum",
+    "kasb o‘rganish",
+    "talabalar",
+    "amaliy ta’lim",
   ],
   authors: [{ name: "Nizomiddin Valijanov" }],
-  creator: "84-maktab",
-  publisher: "84-maktab",
+  creator: "2-son kasb-hunar kolleji",
+  publisher: "2-son kasb-hunar kolleji",
+
   openGraph: {
-    title: "84-maktab – Rasmiy veb-sayt",
+    title: "2-son Kasb-hunar kolleji – Rasmiy veb-sayt",
     description:
-      "Bilim va ma’naviyat maskani. Maktab yangiliklari, tadbirlar va ta’lim jarayoni haqida batafsil ma’lumot.",
-    url: "https://nam-school84.uz",
-    siteName: "84-maktab",
+      "Kasb egallashni istaganlar uchun eng to‘g‘ri tanlov. Yo‘nalishlar, o‘quv jarayoni va yangiliklar bilan tanishing.",
+    url: "https://2-kollej.uz",
+    siteName: "2-son kasb-hunar kolleji",
     images: [
       {
         url: "/gerb.svg",
         width: 1200,
         height: 630,
-        alt: "84-maktab",
+        alt: "2-son kasb-hunar kolleji",
       },
     ],
     locale: "uz_UZ",
     type: "website",
   },
+
   twitter: {
     card: "summary_large_image",
-    title: "84-maktab – Rasmiy veb-sayt",
+    title: "2-son Kasb-hunar kolleji",
     description:
-      "84-maktab – yosh avlod uchun bilim va ma’naviyat maskani. Yangiliklar va tadbirlar bilan tanishing.",
+      "Zamonaviy kasblar, amaliy bilim va real natija. Kollej hayoti va yangiliklari bilan tanishing.",
     images: ["/og-image.jpg"],
-    creator: "@33maktab",
+    creator: "@2kollej",
   },
+
   icons: {
     icon: "/gerb.svg",
     apple: "/gerb.svg",
   },
+
   manifest: "/site.webmanifest",
-  metadataBase: new URL("https://nam-school84.uz"),
+  metadataBase: new URL("https://2-kollej.uz"),
+
   alternates: {
-    canonical: "https://nam-school84.uz",
+    canonical: "https://2-kollej.uz",
     languages: {
-      "uz-UZ": "https://nam-school84.uz/uz",
-      "ru-RU": "https://nam-school84.uz/ru",
-      "en-US": "https://nam-school84.uz/en",
+      "uz-UZ": "https://2-kollej.uz/uz",
+      "ru-RU": "https://2-kollej.uz/ru",
+      "en-US": "https://2-kollej.uz/en",
     },
   },
 };
 
-// ❗️ params endi Promise emas — oddiy object
 export default function RootLayout({
   children,
 }: {

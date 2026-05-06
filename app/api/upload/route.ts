@@ -1,9 +1,17 @@
-import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
+import { promises as fs } from "node:fs";
+import path from "node:path";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 const ALLOWED_TYPES = new Set(["news", "employees", "travel360", "general"]);
-const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"]);
+const ALLOWED_EXTENSIONS = new Set([
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".webp",
+  ".gif",
+  ".avif",
+]);
 
 function sanitizeFileName(filename: string) {
   return filename
@@ -14,7 +22,9 @@ function sanitizeFileName(filename: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const typeParam = String(req.nextUrl.searchParams.get("type") || "general").toLowerCase();
+  const typeParam = String(
+    req.nextUrl.searchParams.get("type") || "general",
+  ).toLowerCase();
   const uploadType = ALLOWED_TYPES.has(typeParam) ? typeParam : "general";
 
   const formData = await req.formData();
@@ -44,5 +54,6 @@ export async function POST(req: NextRequest) {
   const buffer = Buffer.from(await file.arrayBuffer());
   await fs.writeFile(filePath, buffer);
 
-  return NextResponse.json({ path: `/uploads/${uploadType}/${finalName}` });
+  const publicPath = `/uploads/${uploadType}/${finalName}`;
+  return NextResponse.json({ path: publicPath, url: publicPath });
 }

@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_COOKIE_NAME } from "@/lib/server-utils";
 import { verifyAdminSession } from "@/lib/auth";
-import { readEmployees, writeEmployees, Language, EmployeeItem } from "@/lib/data";
-import { sanitizeText, sanitizeImagePath, sanitizeLang } from "@/lib/validation";
+import {
+  readEmployees,
+  writeEmployees,
+  Language,
+  EmployeeItem,
+} from "@/lib/data";
+import {
+  sanitizeText,
+  sanitizeImagePath,
+  sanitizeLang,
+} from "@/lib/validation";
 
 const allowedLanguages: Language[] = ["uz", "en", "ru"];
 
@@ -65,7 +74,10 @@ function sanitizeEmployeeBody(payload: any): EmployeeItem[] | null {
 export async function GET(req: NextRequest) {
   const lang = req.nextUrl.searchParams.get("lang") || "all";
   const allEmployees = await readEmployees();
-  const filtered = lang !== "all" ? allEmployees.filter((item) => item.lang === lang) : allEmployees;
+  const filtered =
+    lang !== "all"
+      ? allEmployees.filter((item) => item.lang === lang)
+      : allEmployees;
   return NextResponse.json({ data: filtered });
 }
 
@@ -78,11 +90,15 @@ export async function POST(req: NextRequest) {
   const payload = await req.json();
   const items = sanitizeEmployeeBody(payload);
   if (!items || items.length === 0) {
-    return NextResponse.json({ error: "Invalid employee payload." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid employee payload." },
+      { status: 400 },
+    );
   }
 
   const allEmployees = await readEmployees();
-  let nextId = allEmployees.reduce((max, entry) => Math.max(max, entry.id), 0) + 1;
+  let nextId =
+    allEmployees.reduce((max, entry) => Math.max(max, entry.id), 0) + 1;
   const created = items.map((item) => ({ ...item, id: nextId++ }));
   allEmployees.push(...created);
   await writeEmployees(allEmployees);

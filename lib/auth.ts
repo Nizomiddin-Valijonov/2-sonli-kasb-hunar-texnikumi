@@ -63,7 +63,10 @@ export async function revokeAdminSession(token?: string) {
   await writeAdminData(admin);
 }
 
-export async function changeAdminPassword(currentPassword: string, newPassword: string) {
+export async function changeAdminPassword(
+  currentPassword: string,
+  newPassword: string,
+) {
   const admin = await ensureAdminCredentials();
   if (!compareHash(currentPassword, admin.passwordHash, admin.salt)) {
     return false;

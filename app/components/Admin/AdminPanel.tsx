@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 interface NewsForm {
@@ -64,6 +65,7 @@ interface TravelItem {
   description: string;
   img: string;
   order: number;
+  lang: "uz" | "en" | "ru";
 }
 
 const defaultNewsForm: NewsForm = {
@@ -103,9 +105,115 @@ const defaultTravelForm: TravelForm = {
   lang: "uz",
 };
 
+type AdminTab = "news" | "employees" | "travel360" | "password";
+type UploadType = "news" | "employees" | "travel360";
+
+const normalizeUploadPath = (value: string) => {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) return "";
+  return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+};
+
+async function fetchJson<T = unknown>(input: RequestInfo, init?: RequestInit) {
+  const response = await fetch(input, init);
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(data?.error || `Request failed: ${response.status}`);
+  }
+  return data as T;
+}
+
+interface ImageFieldProps {
+  label: string;
+  value: string;
+  placeholder: string;
+  uploading: boolean;
+  status: string | null;
+  images: string[];
+  onFileUpload: (file: File) => Promise<void>;
+  onPathChange: (value: string) => void;
+  onSelectImage: (value: string) => void;
+}
+
+function ImageField({
+  label,
+  value,
+  placeholder,
+  uploading,
+  status,
+  images,
+  onFileUpload,
+  onPathChange,
+  onSelectImage,
+}: ImageFieldProps) {
+  const previewSrc = normalizeUploadPath(value);
+
+  return (
+    <div className="space-y-4">
+      <label className="block">
+        <span className="text-sm text-slate-700">{label}</span>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={async (event) => {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            await onFileUpload(file);
+            event.target.value = "";
+          }}
+          disabled={uploading}
+          className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 bg-white"
+        />
+      </label>
+      <label className="block">
+        <span className="text-sm text-slate-700">Image path</span>
+        <input
+          value={value}
+          onChange={(event) => onPathChange(event.target.value)}
+          placeholder={placeholder}
+          className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
+        />
+      </label>
+      {status ? <p className="text-sm text-slate-500">{status}</p> : null}
+      {images.length > 0 ? (
+        <div className="space-y-2">
+          <div className="text-sm text-slate-700">Uploaded images</div>
+          <div className="grid grid-cols-2 gap-2">
+            {images.slice(0, 6).map((item) => {
+              const imagePath = String(item);
+              return (
+                <button
+                  key={imagePath}
+                  type="button"
+                  onClick={() => onSelectImage(imagePath)}
+                  className="rounded-2xl border border-slate-200 px-3 py-2 text-left text-xs text-slate-700 hover:bg-slate-100"
+                >
+                  {imagePath.replace("/uploads/", "")}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+      {previewSrc ? (
+        <div className="relative h-40 rounded-3xl overflow-hidden border border-slate-200">
+          <Image
+            src={previewSrc}
+            alt="Preview"
+            fill
+            className="object-cover"
+          />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function AdminPanel() {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
-  const [activeTab, setActiveTab] = useState<"news" | "employees" | "travel360" | "password">("news");
+  const [activeTab, setActiveTab] = useState<
+    "news" | "employees" | "travel360" | "password"
+  >("news");
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -119,20 +227,28 @@ export default function AdminPanel() {
   const [loginPassword, setLoginPassword] = useState("director");
 
   const [newsForm, setNewsForm] = useState<NewsForm>(defaultNewsForm);
-  const [employeeForm, setEmployeeForm] = useState<EmployeeForm>(defaultEmployeeForm);
+  const [employeeForm, setEmployeeForm] =
+    useState<EmployeeForm>(defaultEmployeeForm);
   const [travelForm, setTravelForm] = useState<TravelForm>(defaultTravelForm);
-  const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "" });
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+  });
 
   const [editNewsId, setEditNewsId] = useState<number | null>(null);
   const [editEmployeeId, setEditEmployeeId] = useState<number | null>(null);
   const [editTravelId, setEditTravelId] = useState<number | null>(null);
+  const [imageLibrary, setImageLibrary] = useState<string[]>([]);
+  const [imageLibraryError, setImageLibraryError] = useState<string | null>(null);
 
   const isAdminReady = useMemo(() => authenticated !== null, [authenticated]);
 
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await fetch("/api/admin/session", { credentials: "include" });
+        const response = await fetch("/api/admin/session", {
+          credentials: "include",
+        });
         const data = await response.json();
         setAuthenticated(Boolean(data?.authenticated));
       } catch {
@@ -160,9 +276,11 @@ export default function AdminPanel() {
         const travelData = await travelRes.json();
 
         setNews(Array.isArray(newsData?.data) ? newsData.data : []);
-        setEmployees(Array.isArray(employeesData?.data) ? employeesData.data : []);
+        setEmployees(
+          Array.isArray(employeesData?.data) ? employeesData.data : [],
+        );
         setTravelItems(Array.isArray(travelData?.data) ? travelData.data : []);
-      } catch (error) {
+      } catch (_error) {
         setStatus("Unable to load admin data.");
       } finally {
         setLoading(false);
@@ -172,6 +290,29 @@ export default function AdminPanel() {
     loadData();
   }, [authenticated]);
 
+  const getUploadTypeForTab = (tab: AdminTab): UploadType =>
+    tab === "employees"
+      ? "employees"
+      : tab === "travel360"
+      ? "travel360"
+      : "news";
+
+  const loadImageLibrary = async (type: UploadType) => {
+    try {
+      const data = await fetchJson<{ data: string[] }>(`/api/images?type=${type}`);
+      setImageLibrary(Array.isArray(data?.data) ? data.data : []);
+      setImageLibraryError(null);
+    } catch {
+      setImageLibrary([]);
+      setImageLibraryError("Unable to load uploaded images.");
+    }
+  };
+
+  useEffect(() => {
+    if (!authenticated || activeTab === "password") return;
+    loadImageLibrary(getUploadTypeForTab(activeTab));
+  }, [authenticated, activeTab]);
+
   const handleLogin = async () => {
     try {
       setLoading(true);
@@ -179,7 +320,10 @@ export default function AdminPanel() {
       const response = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: loginUsername, password: loginPassword }),
+        body: JSON.stringify({
+          username: loginUsername,
+          password: loginPassword,
+        }),
         credentials: "include",
       });
       const data = await response.json();
@@ -198,7 +342,10 @@ export default function AdminPanel() {
   };
 
   const handleLogout = async () => {
-    await fetch("/api/admin/logout", { method: "POST", credentials: "include" });
+    await fetch("/api/admin/logout", {
+      method: "POST",
+      credentials: "include",
+    });
     setAuthenticated(false);
     setStatus("Logged out.");
   };
@@ -218,25 +365,25 @@ export default function AdminPanel() {
     setTravelItems(Array.isArray(travelData?.data) ? travelData.data : []);
   };
 
-  const uploadImageFile = async (file: File, type: "news" | "employees" | "travel360") => {
+  const uploadImageFile = async (
+    file: File,
+    type: UploadType,
+  ) => {
     setUploadingImage(true);
     setUploadStatus(null);
 
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const response = await fetch(`/api/upload?type=${type}`, {
+      const data = await fetchJson<{ path: string }>(`/api/upload?type=${type}`, {
         method: "POST",
         body: formData,
       });
-      const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data?.error || "Image upload failed.");
-      }
-
-      setUploadStatus(`Uploaded successfully: ${data.path}`);
-      return data.path;
+      const normalizedPath = normalizeUploadPath(data.path || "");
+      setUploadStatus(`Uploaded successfully: ${normalizedPath}`);
+      await loadImageLibrary(type);
+      return normalizedPath;
     } catch (error) {
       setUploadStatus(`Upload error: ${String(error)}`);
       return "";
@@ -245,59 +392,55 @@ export default function AdminPanel() {
     }
   };
 
-  const handleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-    type: "news" | "employees" | "travel360",
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const uploadedPath = await uploadImageFile(file, type);
-    if (!uploadedPath) return;
-
-    if (type === "news") {
-      setNewsForm({ ...newsForm, img: uploadedPath });
-    } else if (type === "employees") {
-      setEmployeeForm({ ...employeeForm, img: uploadedPath });
-    } else if (type === "travel360") {
-      setTravelForm({ ...travelForm, img: uploadedPath });
-    }
-  };
-
   const submitNews = async () => {
     try {
       setLoading(true);
       setStatus(null);
 
-      const payload: any = {
+      const payload: Record<string, unknown> = {
         img: newsForm.img,
         date: newsForm.date,
       };
 
       if (editNewsId) {
-        const suffix = newsForm.lang === "uz" ? "Uz" : newsForm.lang === "en" ? "En" : "Ru";
+        const suffix =
+          newsForm.lang === "uz" ? "Uz" : newsForm.lang === "en" ? "En" : "Ru";
         payload.title = newsForm[`title${suffix}` as keyof NewsForm];
         payload.desc = newsForm[`desc${suffix}` as keyof NewsForm];
         payload.fullText = newsForm[`fullText${suffix}` as keyof NewsForm];
         payload.lang = newsForm.lang;
       } else {
-        payload.translations = {
-          uz: {
-            title: newsForm.titleUz,
-            desc: newsForm.descUz,
-            fullText: newsForm.fullTextUz,
-          },
-          en: {
-            title: newsForm.titleEn,
-            desc: newsForm.descEn,
-            fullText: newsForm.fullTextEn,
-          },
-          ru: {
-            title: newsForm.titleRu,
-            desc: newsForm.descRu,
-            fullText: newsForm.fullTextRu,
-          },
+        const makeTranslation = (prefix: "Uz" | "En" | "Ru") => {
+          const title = String(newsForm[`title${prefix}` as keyof NewsForm] || "").trim();
+          const desc = String(newsForm[`desc${prefix}` as keyof NewsForm] || "").trim();
+          const fullText = String(
+            newsForm[`fullText${prefix}` as keyof NewsForm] || "",
+          ).trim();
+
+          return title && desc && fullText
+            ? { title, desc, fullText }
+            : null;
         };
+
+        const translations: Record<string, any> = {};
+        const uzTranslation = makeTranslation("Uz");
+        const enTranslation = makeTranslation("En");
+        const ruTranslation = makeTranslation("Ru");
+
+        if (uzTranslation) translations.uz = uzTranslation;
+        if (enTranslation) translations.en = enTranslation;
+        if (ruTranslation) translations.ru = ruTranslation;
+
+        if (Object.keys(translations).length > 0) {
+          payload.translations = translations;
+        } else {
+          const suffix =
+            newsForm.lang === "uz" ? "Uz" : newsForm.lang === "en" ? "En" : "Ru";
+          payload.title = newsForm[`title${suffix}` as keyof NewsForm];
+          payload.desc = newsForm[`desc${suffix}` as keyof NewsForm];
+          payload.fullText = newsForm[`fullText${suffix}` as keyof NewsForm];
+          payload.lang = newsForm.lang;
+        }
       }
 
       const response = await fetch(
@@ -316,12 +459,19 @@ export default function AdminPanel() {
         return;
       }
 
-      setStatus(editNewsId ? "News updated successfully." : "News saved successfully.");
+      setStatus(
+        editNewsId ? "News updated successfully." : "News saved successfully.",
+      );
       setNews((prev) => {
         if (editNewsId) {
-          return prev.map((item) => (item.id === editNewsId ? data.data : item));
+          return prev.map((item) =>
+            item.id === editNewsId ? data.data : item,
+          );
         }
-        return [...prev, ...(Array.isArray(data.data) ? data.data : [data.data])];
+        return [
+          ...prev,
+          ...(Array.isArray(data.data) ? data.data : [data.data]),
+        ];
       });
       setNewsForm(defaultNewsForm);
       setEditNewsId(null);
@@ -333,7 +483,10 @@ export default function AdminPanel() {
   };
 
   const removeNews = async (id: number) => {
-    await fetch(`/api/news/${id}`, { method: "DELETE", credentials: "include" });
+    await fetch(`/api/news/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
     setNews((prev) => prev.filter((item) => item.id !== id));
     setStatus("News removed.");
   };
@@ -342,7 +495,7 @@ export default function AdminPanel() {
     try {
       setLoading(true);
       setStatus(null);
-      const body: any = {
+      const body: Record<string, unknown> = {
         name: employeeForm.name,
         img: employeeForm.img,
         highlight: employeeForm.highlight,
@@ -371,12 +524,21 @@ export default function AdminPanel() {
         setStatus(data?.error || "Employee save failed.");
         return;
       }
-      setStatus(editEmployeeId ? "Employee updated successfully." : "Employee saved successfully.");
+      setStatus(
+        editEmployeeId
+          ? "Employee updated successfully."
+          : "Employee saved successfully.",
+      );
       setEmployees((prev) => {
         if (editEmployeeId) {
-          return prev.map((item) => (item.id === editEmployeeId ? data.data : item));
+          return prev.map((item) =>
+            item.id === editEmployeeId ? data.data : item,
+          );
         }
-        return [...prev, ...(Array.isArray(data.data) ? data.data : [data.data])];
+        return [
+          ...prev,
+          ...(Array.isArray(data.data) ? data.data : [data.data]),
+        ];
       });
       setEmployeeForm(defaultEmployeeForm);
       setEditEmployeeId(null);
@@ -388,7 +550,10 @@ export default function AdminPanel() {
   };
 
   const removeEmployee = async (id: number) => {
-    await fetch(`/api/employees/${id}`, { method: "DELETE", credentials: "include" });
+    await fetch(`/api/employees/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
     setEmployees((prev) => prev.filter((item) => item.id !== id));
     setStatus("Employee removed.");
   };
@@ -397,15 +562,21 @@ export default function AdminPanel() {
     try {
       setLoading(true);
       setStatus(null);
-      const payload: any = {
+      const payload: Record<string, unknown> = {
         img: travelForm.img,
         order: travelForm.order,
       };
 
       if (editTravelId) {
-        const suffix = travelForm.lang === "uz" ? "Uz" : travelForm.lang === "en" ? "En" : "Ru";
+        const suffix =
+          travelForm.lang === "uz"
+            ? "Uz"
+            : travelForm.lang === "en"
+              ? "En"
+              : "Ru";
         payload.title = travelForm[`title${suffix}` as keyof TravelForm];
-        payload.description = travelForm[`description${suffix}` as keyof TravelForm];
+        payload.description =
+          travelForm[`description${suffix}` as keyof TravelForm];
         payload.lang = travelForm.lang;
       } else {
         payload.translations = {
@@ -438,12 +609,21 @@ export default function AdminPanel() {
         setStatus(data?.error || "Travel item save failed.");
         return;
       }
-      setStatus(editTravelId ? "Travel item updated successfully." : "Travel item saved successfully.");
+      setStatus(
+        editTravelId
+          ? "Travel item updated successfully."
+          : "Travel item saved successfully.",
+      );
       setTravelItems((prev) => {
         if (editTravelId) {
-          return prev.map((item) => (item.id === editTravelId ? data.data : item));
+          return prev.map((item) =>
+            item.id === editTravelId ? data.data : item,
+          );
         }
-        return [...prev, ...(Array.isArray(data.data) ? data.data : [data.data])];
+        return [
+          ...prev,
+          ...(Array.isArray(data.data) ? data.data : [data.data]),
+        ];
       });
       setTravelForm(defaultTravelForm);
       setEditTravelId(null);
@@ -455,7 +635,10 @@ export default function AdminPanel() {
   };
 
   const removeTravel = async (id: number) => {
-    await fetch(`/api/travel360/${id}`, { method: "DELETE", credentials: "include" });
+    await fetch(`/api/travel360/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
     setTravelItems((prev) => prev.filter((item) => item.id !== id));
     setStatus("Travel item removed.");
   };
@@ -521,7 +704,9 @@ export default function AdminPanel() {
           >
             Sign In
           </button>
-          {status ? <p className="mt-4 text-sm text-red-600">{status}</p> : null}
+          {status ? (
+            <p className="mt-4 text-sm text-red-600">{status}</p>
+          ) : null}
         </div>
       </div>
     );
@@ -532,8 +717,12 @@ export default function AdminPanel() {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Admin Dashboard</h1>
-            <p className="text-slate-600 mt-1">Manage news, employees, 360 travel items, and admin password.</p>
+            <h1 className="text-3xl font-bold text-slate-900">
+              Admin Dashboard
+            </h1>
+            <p className="text-slate-600 mt-1">
+              Manage news, employees, 360 travel items, and admin password.
+            </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <button
@@ -551,30 +740,35 @@ export default function AdminPanel() {
           </div>
         </div>
 
-        {status ? (
+        {status || imageLibraryError ? (
           <div className="rounded-3xl bg-white p-4 shadow-sm border border-slate-200 mb-6">
-            <p className="text-sm text-slate-800">{status}</p>
+            {status ? <p className="text-sm text-slate-800">{status}</p> : null}
+            {imageLibraryError ? (
+              <p className="text-sm text-red-600">{imageLibraryError}</p>
+            ) : null}
           </div>
         ) : null}
 
         <div className="rounded-3xl bg-white shadow-sm border border-slate-200 p-4 mb-8">
           <div className="flex flex-wrap gap-2">
-            {(["news", "employees", "travel360", "password"] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`rounded-2xl px-4 py-3 text-sm font-semibold transition ${
-                  activeTab === tab
-                    ? "bg-indigo-600 text-white"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                }`}
-              >
-                {tab === "news" && "News"}
-                {tab === "employees" && "Employees"}
-                {tab === "travel360" && "360 Travel"}
-                {tab === "password" && "Change Password"}
-              </button>
-            ))}
+            {(["news", "employees", "travel360", "password"] as const).map(
+              (tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+                    activeTab === tab
+                      ? "bg-indigo-600 text-white"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  }`}
+                >
+                  {tab === "news" && "News"}
+                  {tab === "employees" && "Employees"}
+                  {tab === "travel360" && "360 Travel"}
+                  {tab === "password" && "Change Password"}
+                </button>
+              ),
+            )}
           </div>
         </div>
 
@@ -583,12 +777,18 @@ export default function AdminPanel() {
             <section className="space-y-8">
               <div className="grid gap-4 lg:grid-cols-2">
                 <div className="space-y-4">
-                  <h2 className="text-xl font-semibold">Create / Update News</h2>
+                  <h2 className="text-xl font-semibold">
+                    Create / Update News
+                  </h2>
                   <label className="block">
-                    <span className="text-sm text-slate-700">Edit language</span>
+                    <span className="text-sm text-slate-700">
+                      Edit language
+                    </span>
                     <select
                       value={newsForm.lang}
-                      onChange={(event) => setNewsForm({ ...newsForm, lang: event.target.value })}
+                      onChange={(event) =>
+                        setNewsForm({ ...newsForm, lang: event.target.value })
+                      }
                       className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
                     >
                       <option value="uz">Uz</option>
@@ -601,26 +801,47 @@ export default function AdminPanel() {
                     <div className="space-y-4 p-4 border border-slate-200 rounded-3xl bg-slate-50">
                       <h3 className="text-lg font-semibold">Uzbek</h3>
                       <label className="block">
-                        <span className="text-sm text-slate-700">Title (Uz)</span>
+                        <span className="text-sm text-slate-700">
+                          Title (Uz)
+                        </span>
                         <input
                           value={newsForm.titleUz}
-                          onChange={(event) => setNewsForm({ ...newsForm, titleUz: event.target.value })}
+                          onChange={(event) =>
+                            setNewsForm({
+                              ...newsForm,
+                              titleUz: event.target.value,
+                            })
+                          }
                           className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
                         />
                       </label>
                       <label className="block">
-                        <span className="text-sm text-slate-700">Short Description (Uz)</span>
+                        <span className="text-sm text-slate-700">
+                          Short Description (Uz)
+                        </span>
                         <textarea
                           value={newsForm.descUz}
-                          onChange={(event) => setNewsForm({ ...newsForm, descUz: event.target.value })}
+                          onChange={(event) =>
+                            setNewsForm({
+                              ...newsForm,
+                              descUz: event.target.value,
+                            })
+                          }
                           className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[100px]"
                         />
                       </label>
                       <label className="block">
-                        <span className="text-sm text-slate-700">Full Text (Uz)</span>
+                        <span className="text-sm text-slate-700">
+                          Full Text (Uz)
+                        </span>
                         <textarea
                           value={newsForm.fullTextUz}
-                          onChange={(event) => setNewsForm({ ...newsForm, fullTextUz: event.target.value })}
+                          onChange={(event) =>
+                            setNewsForm({
+                              ...newsForm,
+                              fullTextUz: event.target.value,
+                            })
+                          }
                           className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[120px]"
                         />
                       </label>
@@ -629,26 +850,47 @@ export default function AdminPanel() {
                     <div className="space-y-4 p-4 border border-slate-200 rounded-3xl bg-slate-50">
                       <h3 className="text-lg font-semibold">English</h3>
                       <label className="block">
-                        <span className="text-sm text-slate-700">Title (En)</span>
+                        <span className="text-sm text-slate-700">
+                          Title (En)
+                        </span>
                         <input
                           value={newsForm.titleEn}
-                          onChange={(event) => setNewsForm({ ...newsForm, titleEn: event.target.value })}
+                          onChange={(event) =>
+                            setNewsForm({
+                              ...newsForm,
+                              titleEn: event.target.value,
+                            })
+                          }
                           className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
                         />
                       </label>
                       <label className="block">
-                        <span className="text-sm text-slate-700">Short Description (En)</span>
+                        <span className="text-sm text-slate-700">
+                          Short Description (En)
+                        </span>
                         <textarea
                           value={newsForm.descEn}
-                          onChange={(event) => setNewsForm({ ...newsForm, descEn: event.target.value })}
+                          onChange={(event) =>
+                            setNewsForm({
+                              ...newsForm,
+                              descEn: event.target.value,
+                            })
+                          }
                           className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[100px]"
                         />
                       </label>
                       <label className="block">
-                        <span className="text-sm text-slate-700">Full Text (En)</span>
+                        <span className="text-sm text-slate-700">
+                          Full Text (En)
+                        </span>
                         <textarea
                           value={newsForm.fullTextEn}
-                          onChange={(event) => setNewsForm({ ...newsForm, fullTextEn: event.target.value })}
+                          onChange={(event) =>
+                            setNewsForm({
+                              ...newsForm,
+                              fullTextEn: event.target.value,
+                            })
+                          }
                           className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[120px]"
                         />
                       </label>
@@ -657,66 +899,88 @@ export default function AdminPanel() {
                     <div className="space-y-4 p-4 border border-slate-200 rounded-3xl bg-slate-50">
                       <h3 className="text-lg font-semibold">Russian</h3>
                       <label className="block">
-                        <span className="text-sm text-slate-700">Title (Ru)</span>
+                        <span className="text-sm text-slate-700">
+                          Title (Ru)
+                        </span>
                         <input
                           value={newsForm.titleRu}
-                          onChange={(event) => setNewsForm({ ...newsForm, titleRu: event.target.value })}
+                          onChange={(event) =>
+                            setNewsForm({
+                              ...newsForm,
+                              titleRu: event.target.value,
+                            })
+                          }
                           className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
                         />
                       </label>
                       <label className="block">
-                        <span className="text-sm text-slate-700">Short Description (Ru)</span>
+                        <span className="text-sm text-slate-700">
+                          Short Description (Ru)
+                        </span>
                         <textarea
                           value={newsForm.descRu}
-                          onChange={(event) => setNewsForm({ ...newsForm, descRu: event.target.value })}
+                          onChange={(event) =>
+                            setNewsForm({
+                              ...newsForm,
+                              descRu: event.target.value,
+                            })
+                          }
                           className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[100px]"
                         />
                       </label>
                       <label className="block">
-                        <span className="text-sm text-slate-700">Full Text (Ru)</span>
+                        <span className="text-sm text-slate-700">
+                          Full Text (Ru)
+                        </span>
                         <textarea
                           value={newsForm.fullTextRu}
-                          onChange={(event) => setNewsForm({ ...newsForm, fullTextRu: event.target.value })}
+                          onChange={(event) =>
+                            setNewsForm({
+                              ...newsForm,
+                              fullTextRu: event.target.value,
+                            })
+                          }
                           className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[120px]"
                         />
                       </label>
                     </div>
                   </div>
 
-                  <label className="block">
-                    <span className="text-sm text-slate-700">Upload image</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(event) => handleImageUpload(event, "news")}
-                      className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 bg-white"
-                    />
-                  </label>
-                  <label className="block">
-                    <span className="text-sm text-slate-700">Image path</span>
-                    <input
-                      value={newsForm.img}
-                      onChange={(event) => setNewsForm({ ...newsForm, img: event.target.value })}
-                      placeholder="/uploads/news/your-image.jpg"
-                      className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
-                    />
-                    <p className="text-xs text-slate-500 mt-2">
-                      File upload is preferred. If you paste a path, make sure it points to a valid public image.
-                    </p>
-                  </label>
-                  {uploadStatus && (
-                    <p className="text-sm text-slate-500">{uploadStatus}</p>
-                  )}
+                  <ImageField
+                    label="Upload news image"
+                    value={newsForm.img}
+                    placeholder="/uploads/news/your-image.jpg"
+                    uploading={uploadingImage}
+                    status={uploadStatus}
+                    images={imageLibrary}
+                    onFileUpload={async (file) => {
+                      const uploadedPath = await uploadImageFile(file, "news");
+                      if (uploadedPath) {
+                        setNewsForm({ ...newsForm, img: uploadedPath });
+                      }
+                    }}
+                    onPathChange={(value) =>
+                      setNewsForm({ ...newsForm, img: normalizeUploadPath(value) })
+                    }
+                    onSelectImage={(value) =>
+                      setNewsForm({ ...newsForm, img: value })
+                    }
+                  />
                   <label className="block">
                     <span className="text-sm text-slate-700">Date</span>
                     <input
                       type="date"
                       value={newsForm.date}
-                      onChange={(event) => setNewsForm({ ...newsForm, date: event.target.value })}
+                      onChange={(event) =>
+                        setNewsForm({ ...newsForm, date: event.target.value })
+                      }
                       className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
                     />
                   </label>
-                  <p className="text-sm text-slate-500">When creating new news, all three language versions are stored together.</p>
+                  <p className="text-sm text-slate-500">
+                    When creating new news, all three language versions are
+                    stored together.
+                  </p>
                   <button
                     onClick={submitNews}
                     className="rounded-2xl bg-indigo-600 px-5 py-3 text-white font-semibold hover:bg-indigo-700"
@@ -733,26 +997,37 @@ export default function AdminPanel() {
                       <p className="text-slate-500">No news items found.</p>
                     ) : (
                       news.map((item) => (
-                        <div key={item.id} className="rounded-3xl border border-slate-200 p-4">
+                        <div
+                          key={item.id}
+                          className="rounded-3xl border border-slate-200 p-4"
+                        >
                           <div className="flex flex-wrap items-center justify-between gap-3">
                             <div>
                               <h3 className="font-semibold">{item.title}</h3>
-                              <p className="text-xs text-slate-500">{item.lang} - {item.date}</p>
+                              <p className="text-xs text-slate-500">
+                                {item.lang} - {item.date}
+                              </p>
                             </div>
                             <div className="flex gap-2">
                               <button
                                 onClick={() => {
                                   setEditNewsId(item.id);
                                   setNewsForm({
-                                    titleUz: item.lang === "uz" ? item.title : "",
-                                    titleEn: item.lang === "en" ? item.title : "",
-                                    titleRu: item.lang === "ru" ? item.title : "",
+                                    titleUz:
+                                      item.lang === "uz" ? item.title : "",
+                                    titleEn:
+                                      item.lang === "en" ? item.title : "",
+                                    titleRu:
+                                      item.lang === "ru" ? item.title : "",
                                     descUz: item.lang === "uz" ? item.desc : "",
                                     descEn: item.lang === "en" ? item.desc : "",
                                     descRu: item.lang === "ru" ? item.desc : "",
-                                    fullTextUz: item.lang === "uz" ? item.fullText : "",
-                                    fullTextEn: item.lang === "en" ? item.fullText : "",
-                                    fullTextRu: item.lang === "ru" ? item.fullText : "",
+                                    fullTextUz:
+                                      item.lang === "uz" ? item.fullText : "",
+                                    fullTextEn:
+                                      item.lang === "en" ? item.fullText : "",
+                                    fullTextRu:
+                                      item.lang === "ru" ? item.fullText : "",
                                     img: item.img,
                                     date: item.date.slice(0, 10),
                                     lang: item.lang,
@@ -783,41 +1058,55 @@ export default function AdminPanel() {
             <section className="space-y-8">
               <div className="grid gap-4 lg:grid-cols-2">
                 <div className="space-y-4">
-                  <h2 className="text-xl font-semibold">Create / Update Employee</h2>
+                  <h2 className="text-xl font-semibold">
+                    Create / Update Employee
+                  </h2>
                   <label className="block">
                     <span className="text-sm text-slate-700">Name</span>
                     <input
                       value={employeeForm.name}
-                      onChange={(event) => setEmployeeForm({ ...employeeForm, name: event.target.value })}
+                      onChange={(event) =>
+                        setEmployeeForm({
+                          ...employeeForm,
+                          name: event.target.value,
+                        })
+                      }
                       className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
                     />
                   </label>
-                  <label className="block">
-                    <span className="text-sm text-slate-700">Upload image</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(event) => handleImageUpload(event, "employees")}
-                      className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 bg-white"
-                    />
-                  </label>
-                  <label className="block">
-                    <span className="text-sm text-slate-700">Image path</span>
-                    <input
-                      value={employeeForm.img}
-                      onChange={(event) => setEmployeeForm({ ...employeeForm, img: event.target.value })}
-                      placeholder="/uploads/employees/your-image.jpg"
-                      className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
-                    />
-                    <p className="text-xs text-slate-500 mt-2">
-                      Upload is preferred; manual path is only for advanced use.
-                    </p>
-                  </label>
+                  <ImageField
+                    label="Upload employee image"
+                    value={employeeForm.img}
+                    placeholder="/uploads/employees/your-image.jpg"
+                    uploading={uploadingImage}
+                    status={uploadStatus}
+                    images={imageLibrary}
+                    onFileUpload={async (file) => {
+                      const uploadedPath = await uploadImageFile(file, "employees");
+                      if (uploadedPath) {
+                        setEmployeeForm({ ...employeeForm, img: uploadedPath });
+                      }
+                    }}
+                    onPathChange={(value) =>
+                      setEmployeeForm({
+                        ...employeeForm,
+                        img: normalizeUploadPath(value),
+                      })
+                    }
+                    onSelectImage={(value) =>
+                      setEmployeeForm({ ...employeeForm, img: value })
+                    }
+                  />
                   <label className="block">
                     <span className="text-sm text-slate-700">Role (Uz)</span>
                     <input
                       value={employeeForm.roleUz}
-                      onChange={(event) => setEmployeeForm({ ...employeeForm, roleUz: event.target.value })}
+                      onChange={(event) =>
+                        setEmployeeForm({
+                          ...employeeForm,
+                          roleUz: event.target.value,
+                        })
+                      }
                       className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
                     />
                   </label>
@@ -825,7 +1114,12 @@ export default function AdminPanel() {
                     <span className="text-sm text-slate-700">Role (En)</span>
                     <input
                       value={employeeForm.roleEn}
-                      onChange={(event) => setEmployeeForm({ ...employeeForm, roleEn: event.target.value })}
+                      onChange={(event) =>
+                        setEmployeeForm({
+                          ...employeeForm,
+                          roleEn: event.target.value,
+                        })
+                      }
                       className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
                     />
                   </label>
@@ -833,7 +1127,12 @@ export default function AdminPanel() {
                     <span className="text-sm text-slate-700">Role (Ru)</span>
                     <input
                       value={employeeForm.roleRu}
-                      onChange={(event) => setEmployeeForm({ ...employeeForm, roleRu: event.target.value })}
+                      onChange={(event) =>
+                        setEmployeeForm({
+                          ...employeeForm,
+                          roleRu: event.target.value,
+                        })
+                      }
                       className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
                     />
                   </label>
@@ -842,17 +1141,27 @@ export default function AdminPanel() {
                       type="checkbox"
                       checked={employeeForm.highlight}
                       onChange={(event) =>
-                        setEmployeeForm({ ...employeeForm, highlight: event.target.checked })
+                        setEmployeeForm({
+                          ...employeeForm,
+                          highlight: event.target.checked,
+                        })
                       }
                       className="h-4 w-4 rounded border-slate-300"
                     />
-                    <span className="text-sm text-slate-700">Highlight card</span>
+                    <span className="text-sm text-slate-700">
+                      Highlight card
+                    </span>
                   </label>
                   <label className="block">
                     <span className="text-sm text-slate-700">Language</span>
                     <select
                       value={employeeForm.lang}
-                      onChange={(event) => setEmployeeForm({ ...employeeForm, lang: event.target.value })}
+                      onChange={(event) =>
+                        setEmployeeForm({
+                          ...employeeForm,
+                          lang: event.target.value,
+                        })
+                      }
                       className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
                     >
                       <option value="uz">Uz</option>
@@ -876,11 +1185,16 @@ export default function AdminPanel() {
                       <p className="text-slate-500">No employees found.</p>
                     ) : (
                       employees.map((item) => (
-                        <div key={item.id} className="rounded-3xl border border-slate-200 p-4">
+                        <div
+                          key={item.id}
+                          className="rounded-3xl border border-slate-200 p-4"
+                        >
                           <div className="flex flex-wrap items-center justify-between gap-3">
                             <div>
                               <h3 className="font-semibold">{item.name}</h3>
-                              <p className="text-xs text-slate-500">{item.lang}</p>
+                              <p className="text-xs text-slate-500">
+                                {item.lang}
+                              </p>
                             </div>
                             <div className="flex gap-2">
                               <button
@@ -891,9 +1205,18 @@ export default function AdminPanel() {
                                     img: item.img,
                                     lang: item.lang,
                                     highlight: Boolean(item.highlight),
-                                    roleUz: typeof item.role === "object" ? item.role.uz : String(item.role),
-                                    roleEn: typeof item.role === "object" ? item.role.en : String(item.role),
-                                    roleRu: typeof item.role === "object" ? item.role.ru : String(item.role),
+                                    roleUz:
+                                      typeof item.role === "object"
+                                        ? item.role.uz
+                                        : String(item.role),
+                                    roleEn:
+                                      typeof item.role === "object"
+                                        ? item.role.en
+                                        : String(item.role),
+                                    roleRu:
+                                      typeof item.role === "object"
+                                        ? item.role.ru
+                                        : String(item.role),
                                   });
                                 }}
                                 className="rounded-2xl bg-slate-100 px-3 py-2 text-sm hover:bg-slate-200"
@@ -921,12 +1244,21 @@ export default function AdminPanel() {
             <section className="space-y-8">
               <div className="grid gap-4 lg:grid-cols-2">
                 <div className="space-y-4">
-                  <h2 className="text-xl font-semibold">Create / Update 360 Travel</h2>
+                  <h2 className="text-xl font-semibold">
+                    Create / Update 360 Travel
+                  </h2>
                   <label className="block">
-                    <span className="text-sm text-slate-700">Edit language</span>
+                    <span className="text-sm text-slate-700">
+                      Edit language
+                    </span>
                     <select
                       value={travelForm.lang}
-                      onChange={(event) => setTravelForm({ ...travelForm, lang: event.target.value })}
+                      onChange={(event) =>
+                        setTravelForm({
+                          ...travelForm,
+                          lang: event.target.value,
+                        })
+                      }
                       className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
                     >
                       <option value="uz">Uz</option>
@@ -939,18 +1271,32 @@ export default function AdminPanel() {
                     <div className="space-y-4 p-4 border border-slate-200 rounded-3xl bg-slate-50">
                       <h3 className="text-lg font-semibold">Uzbek</h3>
                       <label className="block">
-                        <span className="text-sm text-slate-700">Title (Uz)</span>
+                        <span className="text-sm text-slate-700">
+                          Title (Uz)
+                        </span>
                         <input
                           value={travelForm.titleUz}
-                          onChange={(event) => setTravelForm({ ...travelForm, titleUz: event.target.value })}
+                          onChange={(event) =>
+                            setTravelForm({
+                              ...travelForm,
+                              titleUz: event.target.value,
+                            })
+                          }
                           className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
                         />
                       </label>
                       <label className="block">
-                        <span className="text-sm text-slate-700">Description (Uz)</span>
+                        <span className="text-sm text-slate-700">
+                          Description (Uz)
+                        </span>
                         <textarea
                           value={travelForm.descriptionUz}
-                          onChange={(event) => setTravelForm({ ...travelForm, descriptionUz: event.target.value })}
+                          onChange={(event) =>
+                            setTravelForm({
+                              ...travelForm,
+                              descriptionUz: event.target.value,
+                            })
+                          }
                           className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[100px]"
                         />
                       </label>
@@ -959,18 +1305,32 @@ export default function AdminPanel() {
                     <div className="space-y-4 p-4 border border-slate-200 rounded-3xl bg-slate-50">
                       <h3 className="text-lg font-semibold">English</h3>
                       <label className="block">
-                        <span className="text-sm text-slate-700">Title (En)</span>
+                        <span className="text-sm text-slate-700">
+                          Title (En)
+                        </span>
                         <input
                           value={travelForm.titleEn}
-                          onChange={(event) => setTravelForm({ ...travelForm, titleEn: event.target.value })}
+                          onChange={(event) =>
+                            setTravelForm({
+                              ...travelForm,
+                              titleEn: event.target.value,
+                            })
+                          }
                           className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
                         />
                       </label>
                       <label className="block">
-                        <span className="text-sm text-slate-700">Description (En)</span>
+                        <span className="text-sm text-slate-700">
+                          Description (En)
+                        </span>
                         <textarea
                           value={travelForm.descriptionEn}
-                          onChange={(event) => setTravelForm({ ...travelForm, descriptionEn: event.target.value })}
+                          onChange={(event) =>
+                            setTravelForm({
+                              ...travelForm,
+                              descriptionEn: event.target.value,
+                            })
+                          }
                           className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[100px]"
                         />
                       </label>
@@ -979,45 +1339,61 @@ export default function AdminPanel() {
                     <div className="space-y-4 p-4 border border-slate-200 rounded-3xl bg-slate-50">
                       <h3 className="text-lg font-semibold">Russian</h3>
                       <label className="block">
-                        <span className="text-sm text-slate-700">Title (Ru)</span>
+                        <span className="text-sm text-slate-700">
+                          Title (Ru)
+                        </span>
                         <input
                           value={travelForm.titleRu}
-                          onChange={(event) => setTravelForm({ ...travelForm, titleRu: event.target.value })}
+                          onChange={(event) =>
+                            setTravelForm({
+                              ...travelForm,
+                              titleRu: event.target.value,
+                            })
+                          }
                           className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
                         />
                       </label>
                       <label className="block">
-                        <span className="text-sm text-slate-700">Description (Ru)</span>
+                        <span className="text-sm text-slate-700">
+                          Description (Ru)
+                        </span>
                         <textarea
                           value={travelForm.descriptionRu}
-                          onChange={(event) => setTravelForm({ ...travelForm, descriptionRu: event.target.value })}
+                          onChange={(event) =>
+                            setTravelForm({
+                              ...travelForm,
+                              descriptionRu: event.target.value,
+                            })
+                          }
                           className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[100px]"
                         />
                       </label>
                     </div>
                   </div>
 
-                  <label className="block">
-                    <span className="text-sm text-slate-700">Upload image</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(event) => handleImageUpload(event, "travel360")}
-                      className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 bg-white"
-                    />
-                  </label>
-                  <label className="block">
-                    <span className="text-sm text-slate-700">Image path</span>
-                    <input
-                      value={travelForm.img}
-                      onChange={(event) => setTravelForm({ ...travelForm, img: event.target.value })}
-                      placeholder="/uploads/travel360/your-image.jpg"
-                      className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
-                    />
-                    <p className="text-xs text-slate-500 mt-2">
-                      Upload is preferred; manual path is only for advanced use.
-                    </p>
-                  </label>
+                  <ImageField
+                    label="Upload 360 image"
+                    value={travelForm.img}
+                    placeholder="/uploads/travel360/your-image.jpg"
+                    uploading={uploadingImage}
+                    status={uploadStatus}
+                    images={imageLibrary}
+                    onFileUpload={async (file) => {
+                      const uploadedPath = await uploadImageFile(file, "travel360");
+                      if (uploadedPath) {
+                        setTravelForm({ ...travelForm, img: uploadedPath });
+                      }
+                    }}
+                    onPathChange={(value) =>
+                      setTravelForm({
+                        ...travelForm,
+                        img: normalizeUploadPath(value),
+                      })
+                    }
+                    onSelectImage={(value) =>
+                      setTravelForm({ ...travelForm, img: value })
+                    }
+                  />
                   <label className="block">
                     <span className="text-sm text-slate-700">Order</span>
                     <input
@@ -1025,12 +1401,18 @@ export default function AdminPanel() {
                       value={travelForm.order}
                       min={1}
                       onChange={(event) =>
-                        setTravelForm({ ...travelForm, order: Number(event.target.value) })
+                        setTravelForm({
+                          ...travelForm,
+                          order: Number(event.target.value),
+                        })
                       }
                       className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
                     />
                   </label>
-                  <p className="text-sm text-slate-500">When creating a new 360 travel item, all three language versions are stored together.</p>
+                  <p className="text-sm text-slate-500">
+                    When creating a new 360 travel item, all three language
+                    versions are stored together.
+                  </p>
                   <button
                     onClick={submitTravel}
                     className="rounded-2xl bg-indigo-600 px-5 py-3 text-white font-semibold hover:bg-indigo-700"
@@ -1047,23 +1429,40 @@ export default function AdminPanel() {
                       <p className="text-slate-500">No travel items found.</p>
                     ) : (
                       travelItems.map((item) => (
-                        <div key={item.id} className="rounded-3xl border border-slate-200 p-4">
+                        <div
+                          key={item.id}
+                          className="rounded-3xl border border-slate-200 p-4"
+                        >
                           <div className="flex flex-wrap items-center justify-between gap-3">
                             <div>
                               <h3 className="font-semibold">{item.title}</h3>
-                              <p className="text-xs text-slate-500">Order {item.order}</p>
+                              <p className="text-xs text-slate-500">
+                                Order {item.order}
+                              </p>
                             </div>
                             <div className="flex gap-2">
                               <button
                                 onClick={() => {
                                   setEditTravelId(item.id);
                                   setTravelForm({
-                                    titleUz: item.lang === "uz" ? item.title : "",
-                                    titleEn: item.lang === "en" ? item.title : "",
-                                    titleRu: item.lang === "ru" ? item.title : "",
-                                    descriptionUz: item.lang === "uz" ? item.description : "",
-                                    descriptionEn: item.lang === "en" ? item.description : "",
-                                    descriptionRu: item.lang === "ru" ? item.description : "",
+                                    titleUz:
+                                      item.lang === "uz" ? item.title : "",
+                                    titleEn:
+                                      item.lang === "en" ? item.title : "",
+                                    titleRu:
+                                      item.lang === "ru" ? item.title : "",
+                                    descriptionUz:
+                                      item.lang === "uz"
+                                        ? item.description
+                                        : "",
+                                    descriptionEn:
+                                      item.lang === "en"
+                                        ? item.description
+                                        : "",
+                                    descriptionRu:
+                                      item.lang === "ru"
+                                        ? item.description
+                                        : "",
                                     img: item.img,
                                     order: item.order,
                                     lang: item.lang,
@@ -1095,12 +1494,17 @@ export default function AdminPanel() {
               <h2 className="text-xl font-semibold">Change Admin Password</h2>
               <div className="grid gap-4 lg:grid-cols-2">
                 <label className="block">
-                  <span className="text-sm text-slate-700">Current Password</span>
+                  <span className="text-sm text-slate-700">
+                    Current Password
+                  </span>
                   <input
                     type="password"
                     value={passwordForm.currentPassword}
                     onChange={(event) =>
-                      setPasswordForm({ ...passwordForm, currentPassword: event.target.value })
+                      setPasswordForm({
+                        ...passwordForm,
+                        currentPassword: event.target.value,
+                      })
                     }
                     className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
                   />
@@ -1111,7 +1515,10 @@ export default function AdminPanel() {
                     type="password"
                     value={passwordForm.newPassword}
                     onChange={(event) =>
-                      setPasswordForm({ ...passwordForm, newPassword: event.target.value })
+                      setPasswordForm({
+                        ...passwordForm,
+                        newPassword: event.target.value,
+                      })
                     }
                     className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
                   />
@@ -1125,7 +1532,8 @@ export default function AdminPanel() {
                 Update Password
               </button>
               <p className="text-sm text-slate-500">
-                Default admin credentials are: <strong>director</strong> / <strong>director</strong>.
+                Default admin credentials are: <strong>director</strong> /{" "}
+                <strong>director</strong>.
               </p>
             </section>
           )}

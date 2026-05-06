@@ -6,7 +6,11 @@ export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const supported = ["uz", "en", "ru"];
 
-  if (pathname.startsWith("/admin") || pathname.startsWith("/api")) {
+  if (
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/uploads")
+  ) {
     return NextResponse.next();
   }
 
@@ -16,5 +20,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|favicon.ico|api).*)"],
+  matcher: ["/((?!_next|favicon.ico|api|uploads).*)"],
 };

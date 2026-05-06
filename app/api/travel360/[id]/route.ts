@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_COOKIE_NAME } from "@/lib/server-utils";
 import { verifyAdminSession } from "@/lib/auth";
 import { readTravel, writeTravel, TravelItem } from "@/lib/data";
-import { sanitizeText, sanitizeImagePath, sanitizeLang } from "@/lib/validation";
+import {
+  sanitizeText,
+  sanitizeImagePath,
+  sanitizeLang,
+} from "@/lib/validation";
 
 function sanitizeTravelUpdates(payload: any): Partial<TravelItem> | null {
   const result: Partial<TravelItem> = {};
@@ -40,7 +44,10 @@ function sanitizeTravelUpdates(payload: any): Partial<TravelItem> | null {
   return Object.keys(result).length ? result : null;
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } },
+) {
   const travel = await readTravel();
   const item = travel.find((entry) => entry.id === Number(params.id));
   if (!item) {
@@ -49,7 +56,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json({ data: item });
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } },
+) {
   const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
   if (!(await verifyAdminSession(token))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -72,7 +82,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json({ data: travel[index] });
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } },
+) {
   const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
   if (!(await verifyAdminSession(token))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

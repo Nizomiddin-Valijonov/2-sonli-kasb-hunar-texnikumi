@@ -6,9 +6,9 @@ import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { usePathname } from "next/navigation";
 import { getNews, getImageUrl } from "../../services/api";
-import LoadingState from "../ui/LoadingState";
-import ErrorState from "../ui/ErrorState";
-import EmptyState from "../ui/EmptyState";
+import LoadingState from "../../ui/LoadingState";
+import ErrorState from "../../ui/ErrorState";
+import EmptyState from "../../ui/EmptyState";
 import logo from "../../assets/News/news.jpg";
 
 interface NewsItem {
@@ -87,8 +87,7 @@ const News = () => {
       <EmptyState
         title={t("news.empty") || "Yangiliklar topilmadi"}
         description={
-          t("news.emptyDesc") ||
-          "Hozircha bu bo'limda yangiliklar mavjud emas."
+          t("news.emptyDesc") || "Hozircha bu bo'limda yangiliklar mavjud emas."
         }
       />
     );

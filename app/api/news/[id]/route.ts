@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_COOKIE_NAME } from "@/lib/server-utils";
 import { verifyAdminSession } from "@/lib/auth";
 import { readNews, writeNews, Language, NewsItem } from "@/lib/data";
-import { sanitizeText, sanitizeImagePath, sanitizeLang, isValidDate } from "@/lib/validation";
+import {
+  sanitizeText,
+  sanitizeImagePath,
+  sanitizeLang,
+  isValidDate,
+} from "@/lib/validation";
 
 const allowedLanguages: Language[] = ["uz", "en", "ru"];
 
@@ -48,7 +53,10 @@ function sanitizeNewsBody(payload: any): Partial<NewsItem> | null {
   return Object.keys(result).length ? result : null;
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } },
+) {
   const allNews = await readNews();
   const item = allNews.find((entry) => entry.id === Number(params.id));
   if (!item) {
@@ -57,7 +65,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json({ data: item });
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } },
+) {
   const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
   if (!(await verifyAdminSession(token))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -82,7 +93,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json({ data: updated });
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } },
+) {
   const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
   if (!(await verifyAdminSession(token))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
