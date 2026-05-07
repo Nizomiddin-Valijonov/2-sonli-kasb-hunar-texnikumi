@@ -55,8 +55,9 @@ function sanitizeNewsBody(payload: any): Partial<NewsItem> | null {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
+  const params = await context.params;
   const allNews = await readNews();
   const item = allNews.find((entry) => entry.id === Number(params.id));
   if (!item) {
@@ -67,36 +68,46 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
-  const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
-  if (!(await verifyAdminSession(token))) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const params = await context.params;
+    const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    if (!(await verifyAdminSession(token))) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const payload = await req.json();
+    const changes = sanitizeNewsBody(payload);
+    if (!changes) {
+      return NextResponse.json({ error: "Invalid payload." }, { status: 400 });
+    }
+
+    const allNews = await readNews();
+    const index = allNews.findIndex((entry) => entry.id === Number(params.id));
+    if (index === -1) {
+      return NextResponse.json({ error: "Not found." }, { status: 404 });
+    }
+
+    const updated = { ...allNews[index], ...changes };
+    allNews[index] = updated;
+    await writeNews(allNews);
+
+    return NextResponse.json({ data: updated });
+  } catch (error) {
+    console.error("News PUT error:", error);
+    return NextResponse.json(
+      { error: "Internal server error." },
+      { status: 500 },
+    );
   }
-
-  const payload = await req.json();
-  const changes = sanitizeNewsBody(payload);
-  if (!changes) {
-    return NextResponse.json({ error: "Invalid payload." }, { status: 400 });
-  }
-
-  const allNews = await readNews();
-  const index = allNews.findIndex((entry) => entry.id === Number(params.id));
-  if (index === -1) {
-    return NextResponse.json({ error: "Not found." }, { status: 404 });
-  }
-
-  const updated = { ...allNews[index], ...changes };
-  allNews[index] = updated;
-  await writeNews(allNews);
-
-  return NextResponse.json({ data: updated });
 }
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
+  const params = await context.params;
   const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
   if (!(await verifyAdminSession(token))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

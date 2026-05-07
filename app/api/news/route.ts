@@ -79,25 +79,33 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
-  if (!(await verifyAdminSession(token))) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  try {
+    const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    if (!(await verifyAdminSession(token))) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  const payload = await req.json();
-  const items = sanitizeNewsBody(payload);
-  if (!items || items.length === 0) {
+    const payload = await req.json();
+    const items = sanitizeNewsBody(payload);
+    if (!items || items.length === 0) {
+      return NextResponse.json(
+        { error: "Invalid news payload." },
+        { status: 400 },
+      );
+    }
+
+    const allNews = await readNews();
+    let nextId = allNews.reduce((max, entry) => Math.max(max, entry.id), 0) + 1;
+    const created = items.map((item) => ({ ...item, id: nextId++ }));
+    allNews.push(...created);
+    await writeNews(allNews);
+
+    return NextResponse.json({ data: created }, { status: 201 });
+  } catch (error) {
+    console.error("News POST error:", error);
     return NextResponse.json(
-      { error: "Invalid news payload." },
-      { status: 400 },
+      { error: "Internal server error." },
+      { status: 500 },
     );
   }
-
-  const allNews = await readNews();
-  let nextId = allNews.reduce((max, entry) => Math.max(max, entry.id), 0) + 1;
-  const created = items.map((item) => ({ ...item, id: nextId++ }));
-  allNews.push(...created);
-  await writeNews(allNews);
-
-  return NextResponse.json({ data: created }, { status: 201 });
 }

@@ -67,8 +67,9 @@ function sanitizeEmployeeUpdates(payload: any): Partial<EmployeeItem> | null {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
+  const params = await context.params;
   const allEmployees = await readEmployees();
   const item = allEmployees.find((entry) => entry.id === Number(params.id));
   if (!item) {
@@ -79,8 +80,9 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
+  const params = await context.params;
   const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
   if (!(await verifyAdminSession(token))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -108,8 +110,9 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
+  const params = await context.params;
   const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
   if (!(await verifyAdminSession(token))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import "@/app/i18n";
 
 interface NewsForm {
   titleUz: string;
@@ -123,6 +125,15 @@ async function fetchJson<T = unknown>(input: RequestInfo, init?: RequestInit) {
   return data as T;
 }
 
+async function parseApiResponse(response: Response) {
+  const text = await response.text();
+  try {
+    return text ? (JSON.parse(text) as any) : null;
+  } catch {
+    return { error: text || `Unexpected response format: ${response.statusText}` };
+  }
+}
+
 interface ImageFieldProps {
   label: string;
   value: string;
@@ -210,6 +221,7 @@ function ImageField({
 }
 
 export default function AdminPanel() {
+  const { t, i18n } = useTranslation();
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState<
     "news" | "employees" | "travel360" | "password"
@@ -223,8 +235,8 @@ export default function AdminPanel() {
   const [employees, setEmployees] = useState<EmployeeItem[]>([]);
   const [travelItems, setTravelItems] = useState<TravelItem[]>([]);
 
-  const [loginUsername, setLoginUsername] = useState("director");
-  const [loginPassword, setLoginPassword] = useState("director");
+  const [loginUsername, setLoginUsername] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
 
   const [newsForm, setNewsForm] = useState<NewsForm>(defaultNewsForm);
   const [employeeForm, setEmployeeForm] =
@@ -281,7 +293,7 @@ export default function AdminPanel() {
         );
         setTravelItems(Array.isArray(travelData?.data) ? travelData.data : []);
       } catch (_error) {
-        setStatus("Unable to load admin data.");
+        setStatus(t("admin.status.unableToLoad"));
       } finally {
         setLoading(false);
       }
@@ -397,48 +409,85 @@ export default function AdminPanel() {
       setLoading(true);
       setStatus(null);
 
+      // Validate required fields
+      if (!newsForm.img.trim()) {
+        setStatus(t("admin.news.validation.imageRequired"));
+        return;
+      }
+
+      if (!newsForm.date.trim()) {
+        setStatus(t("admin.news.validation.dateRequired"));
+        return;
+      }
+
       const payload: Record<string, unknown> = {
-        img: newsForm.img,
+        img: newsForm.img.trim(),
         date: newsForm.date,
       };
 
       if (editNewsId) {
+        // For editing, update single language
         const suffix =
           newsForm.lang === "uz" ? "Uz" : newsForm.lang === "en" ? "En" : "Ru";
-        payload.title = newsForm[`title${suffix}` as keyof NewsForm];
-        payload.desc = newsForm[`desc${suffix}` as keyof NewsForm];
-        payload.fullText = newsForm[`fullText${suffix}` as keyof NewsForm];
+        const title = newsForm[`title${suffix}` as keyof NewsForm]?.trim();
+        const desc = newsForm[`desc${suffix}` as keyof NewsForm]?.trim();
+        const fullText = newsForm[`fullText${suffix}` as keyof NewsForm]?.trim();
+
+        if (!title || !desc || !fullText) {
+          setStatus(t("admin.news.validation.singleLanguageRequired"));
+          return;
+        }
+
+        payload.title = title;
+        payload.desc = desc;
+        payload.fullText = fullText;
         payload.lang = newsForm.lang;
       } else {
-        const makeTranslation = (prefix: "Uz" | "En" | "Ru") => {
-          const title = String(newsForm[`title${prefix}` as keyof NewsForm] || "").trim();
-          const desc = String(newsForm[`desc${prefix}` as keyof NewsForm] || "").trim();
-          const fullText = String(
-            newsForm[`fullText${prefix}` as keyof NewsForm] || "",
-          ).trim();
-
-          return title && desc && fullText
-            ? { title, desc, fullText }
-            : null;
-        };
-
+        // For creating new news, require all three languages to have complete data
         const translations: Record<string, any> = {};
-        const uzTranslation = makeTranslation("Uz");
-        const enTranslation = makeTranslation("En");
-        const ruTranslation = makeTranslation("Ru");
 
-        if (uzTranslation) translations.uz = uzTranslation;
-        if (enTranslation) translations.en = enTranslation;
-        if (ruTranslation) translations.ru = ruTranslation;
+        const languages = [
+          { code: "uz", suffix: "Uz" as const },
+          { code: "en", suffix: "En" as const },
+          { code: "ru", suffix: "Ru" as const },
+        ];
+
+        let hasValidTranslations = false;
+
+        for (const { code, suffix } of languages) {
+          const title = newsForm[`title${suffix}` as keyof NewsForm]?.trim();
+          const desc = newsForm[`desc${suffix}` as keyof NewsForm]?.trim();
+          const fullText = newsForm[`fullText${suffix}` as keyof NewsForm]?.trim();
+
+          if (title && desc && fullText) {
+            translations[code] = { title, desc, fullText };
+            hasValidTranslations = true;
+          }
+        }
+
+        if (!hasValidTranslations) {
+          setStatus(t("admin.news.validation.completeTranslationRequired"));
+          return;
+        }
 
         if (Object.keys(translations).length > 0) {
           payload.translations = translations;
         } else {
+          // Fallback to single language if only one is complete
           const suffix =
             newsForm.lang === "uz" ? "Uz" : newsForm.lang === "en" ? "En" : "Ru";
-          payload.title = newsForm[`title${suffix}` as keyof NewsForm];
-          payload.desc = newsForm[`desc${suffix}` as keyof NewsForm];
-          payload.fullText = newsForm[`fullText${suffix}` as keyof NewsForm];
+          const title = newsForm[`title${suffix}` as keyof NewsForm]?.trim();
+          const desc = newsForm[`desc${suffix}` as keyof NewsForm]?.trim();
+          const fullText = newsForm[`fullText${suffix}` as keyof NewsForm]?.trim();
+
+          if (!title || !desc || !fullText) {
+            setStatus("Title, description, and full text are required.");
+            return;
+          }
+
+          payload.title = title;
+          payload.desc = desc;
+          payload.fullText = fullText;
           payload.lang = newsForm.lang;
         }
       }
@@ -453,14 +502,14 @@ export default function AdminPanel() {
         },
       );
 
-      const data = await response.json();
+      const data = await parseApiResponse(response);
       if (!response.ok) {
-        setStatus(data?.error || "News save failed.");
+        setStatus(data?.error || t("admin.status.unableToSave"));
         return;
       }
 
       setStatus(
-        editNewsId ? "News updated successfully." : "News saved successfully.",
+        editNewsId ? t("admin.news.success.updated") : t("admin.news.success.created")
       );
       setNews((prev) => {
         if (editNewsId) {
@@ -475,8 +524,9 @@ export default function AdminPanel() {
       });
       setNewsForm(defaultNewsForm);
       setEditNewsId(null);
-    } catch {
-      setStatus("Unable to save news.");
+    } catch (error) {
+      console.error("News submission error:", error);
+      setStatus(t("admin.status.unableToSave"));
     } finally {
       setLoading(false);
     }
@@ -488,7 +538,7 @@ export default function AdminPanel() {
       credentials: "include",
     });
     setNews((prev) => prev.filter((item) => item.id !== id));
-    setStatus("News removed.");
+    setStatus(t("admin.news.success.deleted"));
   };
 
   const submitEmployee = async () => {
@@ -521,13 +571,13 @@ export default function AdminPanel() {
       );
       const data = await response.json();
       if (!response.ok) {
-        setStatus(data?.error || "Employee save failed.");
+        setStatus(data?.error || t("admin.status.error"));
         return;
       }
       setStatus(
         editEmployeeId
-          ? "Employee updated successfully."
-          : "Employee saved successfully.",
+          ? t("admin.employees.success.updated")
+          : t("admin.employees.success.created"),
       );
       setEmployees((prev) => {
         if (editEmployeeId) {
@@ -543,7 +593,7 @@ export default function AdminPanel() {
       setEmployeeForm(defaultEmployeeForm);
       setEditEmployeeId(null);
     } catch {
-      setStatus("Unable to save employee.");
+      setStatus(t("admin.status.unableToSave"));
     } finally {
       setLoading(false);
     }
@@ -555,7 +605,7 @@ export default function AdminPanel() {
       credentials: "include",
     });
     setEmployees((prev) => prev.filter((item) => item.id !== id));
-    setStatus("Employee removed.");
+    setStatus(t("admin.employees.success.deleted"));
   };
 
   const submitTravel = async () => {
@@ -606,13 +656,13 @@ export default function AdminPanel() {
       );
       const data = await response.json();
       if (!response.ok) {
-        setStatus(data?.error || "Travel item save failed.");
+        setStatus(data?.error || t("admin.status.error"));
         return;
       }
       setStatus(
         editTravelId
-          ? "Travel item updated successfully."
-          : "Travel item saved successfully.",
+          ? t("admin.travel360.success.updated")
+          : t("admin.travel360.success.created"),
       );
       setTravelItems((prev) => {
         if (editTravelId) {
@@ -628,7 +678,7 @@ export default function AdminPanel() {
       setTravelForm(defaultTravelForm);
       setEditTravelId(null);
     } catch {
-      setStatus("Unable to save travel item.");
+      setStatus(t("admin.status.unableToSave"));
     } finally {
       setLoading(false);
     }
@@ -640,7 +690,7 @@ export default function AdminPanel() {
       credentials: "include",
     });
     setTravelItems((prev) => prev.filter((item) => item.id !== id));
-    setStatus("Travel item removed.");
+    setStatus(t("admin.travel360.success.deleted"));
   };
 
   const submitPasswordChange = async () => {
@@ -655,13 +705,13 @@ export default function AdminPanel() {
       });
       const data = await response.json();
       if (!response.ok) {
-        setStatus(data?.error || "Password change failed.");
+        setStatus(data?.error || t("admin.status.error"));
         return;
       }
-      setStatus("Password updated successfully.");
+      setStatus(t("admin.password.success"));
       setPasswordForm({ currentPassword: "", newPassword: "" });
     } catch {
-      setStatus("Unable to change password.");
+      setStatus(t("admin.status.unableToSave"));
     } finally {
       setLoading(false);
     }
@@ -677,35 +727,68 @@ export default function AdminPanel() {
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-10">
-        <div className="max-w-md w-full bg-white rounded-3xl shadow-lg p-8">
-          <h1 className="text-2xl font-bold mb-6">Admin Login</h1>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 py-10">
+        <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 border border-slate-200">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">
+              {t("admin.login.title")}
+            </h1>
+            <p className="text-slate-600">
+              {t("admin.title")}
+            </p>
+          </div>
+
+          {/* Language Switcher */}
+          <div className="flex justify-center gap-2 mb-6">
+            {["uz", "en", "ru"].map((lang) => (
+              <button
+                key={lang}
+                onClick={() => i18n.changeLanguage(lang)}
+                className={`px-3 py-1 rounded-lg text-sm font-medium transition ${
+                  i18n.language === lang
+                    ? "bg-indigo-600 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                {lang.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
           <label className="block mb-4">
-            <span className="text-sm font-medium text-slate-700">Username</span>
+            <span className="text-sm font-medium text-slate-700">
+              {t("admin.login.username")}
+            </span>
             <input
               value={loginUsername}
               onChange={(event) => setLoginUsername(event.target.value)}
-              className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-indigo-500"
+              className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+              placeholder={t("admin.login.username")}
             />
           </label>
           <label className="block mb-6">
-            <span className="text-sm font-medium text-slate-700">Password</span>
+            <span className="text-sm font-medium text-slate-700">
+              {t("admin.login.password")}
+            </span>
             <input
               type="password"
               value={loginPassword}
               onChange={(event) => setLoginPassword(event.target.value)}
-              className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-indigo-500"
+              className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+              placeholder={t("admin.login.password")}
             />
           </label>
           <button
             onClick={handleLogin}
             disabled={loading}
-            className="w-full rounded-2xl bg-indigo-600 text-white py-3 font-semibold hover:bg-indigo-700 transition"
+            className="w-full rounded-2xl bg-indigo-600 text-white py-3 font-semibold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-lg hover:shadow-xl"
           >
-            Sign In
+            {loading ? t("admin.status.loading") : t("admin.login.signIn")}
           </button>
           {status ? (
-            <p className="mt-4 text-sm text-red-600">{status}</p>
+            <p className="mt-4 text-sm text-red-600 text-center bg-red-50 p-3 rounded-xl">
+              {status}
+            </p>
           ) : null}
         </div>
       </div>
@@ -713,341 +796,488 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">
-              Admin Dashboard
-            </h1>
-            <p className="text-slate-600 mt-1">
-              Manage news, employees, 360 travel items, and admin password.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <button
-              onClick={refreshAdminData}
-              className="rounded-2xl bg-white border border-slate-300 px-5 py-3 text-slate-700 hover:bg-slate-50"
-            >
-              Refresh
-            </button>
-            <button
-              onClick={handleLogout}
-              className="rounded-2xl bg-red-600 px-5 py-3 text-white hover:bg-red-700"
-            >
-              Logout
-            </button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        {/* Header */}
+        <div className="bg-white rounded-3xl shadow-lg border border-slate-200 p-6 mb-8">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">
+                {t("admin.title")}
+              </h1>
+              <p className="text-slate-600">
+                {t("admin.subtitle")}
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              {/* Language Switcher */}
+              <div className="flex gap-2 mr-4">
+                {["uz", "en", "ru"].map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => i18n.changeLanguage(lang)}
+                    className={`px-3 py-2 rounded-xl text-sm font-medium transition ${
+                      i18n.language === lang
+                        ? "bg-indigo-600 text-white shadow-md"
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    }`}
+                  >
+                    {lang.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={refreshAdminData}
+                disabled={loading}
+                className="rounded-2xl bg-slate-100 border border-slate-300 px-5 py-3 text-slate-700 hover:bg-slate-200 disabled:opacity-50 transition flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                {t("admin.actions.refresh")}
+              </button>
+              <button
+                onClick={handleLogout}
+                className="rounded-2xl bg-red-600 px-5 py-3 text-white hover:bg-red-700 transition shadow-md hover:shadow-lg flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                {t("admin.actions.logout")}
+              </button>
+            </div>
           </div>
         </div>
 
+        {/* Status Messages */}
         {status || imageLibraryError ? (
           <div className="rounded-3xl bg-white p-4 shadow-sm border border-slate-200 mb-6">
-            {status ? <p className="text-sm text-slate-800">{status}</p> : null}
-            {imageLibraryError ? (
-              <p className="text-sm text-red-600">{imageLibraryError}</p>
-            ) : null}
+            <div className="flex items-start gap-3">
+              <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+                status?.includes("successfully") || status?.includes("muvaffaqiyatli")
+                  ? "bg-green-100"
+                  : "bg-red-100"
+              }`}>
+                {status?.includes("successfully") || status?.includes("muvaffaqiyatli") ? (
+                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                )}
+              </div>
+              <div className="flex-1">
+                {status ? <p className="text-sm text-slate-800 font-medium">{status}</p> : null}
+                {imageLibraryError ? (
+                  <p className="text-sm text-red-600 mt-1">{imageLibraryError}</p>
+                ) : null}
+              </div>
+            </div>
           </div>
         ) : null}
 
-        <div className="rounded-3xl bg-white shadow-sm border border-slate-200 p-4 mb-8">
+        {/* Navigation Tabs */}
+        <div className="rounded-3xl bg-white shadow-lg border border-slate-200 p-4 mb-8">
           <div className="flex flex-wrap gap-2">
-            {(["news", "employees", "travel360", "password"] as const).map(
-              (tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`rounded-2xl px-4 py-3 text-sm font-semibold transition ${
-                    activeTab === tab
-                      ? "bg-indigo-600 text-white"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                  }`}
-                >
-                  {tab === "news" && "News"}
-                  {tab === "employees" && "Employees"}
-                  {tab === "travel360" && "360 Travel"}
-                  {tab === "password" && "Change Password"}
-                </button>
-              ),
-            )}
+            {[
+              { key: "news", label: t("admin.tabs.news") },
+              { key: "employees", label: t("admin.tabs.employees") },
+              { key: "travel360", label: t("admin.tabs.travel360") },
+              { key: "password", label: t("admin.tabs.password") },
+            ].map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => setActiveTab(key as typeof activeTab)}
+                className={`rounded-2xl px-6 py-3 text-sm font-semibold transition flex items-center gap-2 ${
+                  activeTab === key
+                    ? "bg-indigo-600 text-white shadow-md"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                {key === "news" && (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                  </svg>
+                )}
+                {key === "employees" && (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                  </svg>
+                )}
+                {key === "travel360" && (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
+                {key === "password" && (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                )}
+                {label}
+              </button>
+            ))}
           </div>
         </div>
 
         <div className="rounded-3xl bg-white shadow-sm border border-slate-200 p-6">
           {activeTab === "news" && (
             <section className="space-y-8">
-              <div className="grid gap-4 lg:grid-cols-2">
-                <div className="space-y-4">
-                  <h2 className="text-xl font-semibold">
-                    Create / Update News
-                  </h2>
-                  <label className="block">
-                    <span className="text-sm text-slate-700">
-                      Edit language
-                    </span>
-                    <select
-                      value={newsForm.lang}
-                      onChange={(event) =>
-                        setNewsForm({ ...newsForm, lang: event.target.value })
-                      }
-                      className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
-                    >
-                      <option value="uz">Uz</option>
-                      <option value="en">En</option>
-                      <option value="ru">Ru</option>
-                    </select>
-                  </label>
+              <div className="grid gap-8 lg:grid-cols-1">
+                <div className="space-y-6">
+                  <div className="bg-white rounded-3xl shadow-lg border border-slate-200 p-6">
+                    <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                      <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      {editNewsId ? t("admin.actions.update") : t("admin.actions.create")} {t("admin.tabs.news")}
+                    </h2>
 
-                  <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3">
-                    <div className="space-y-4 p-4 border border-slate-200 rounded-3xl bg-slate-50">
-                      <h3 className="text-lg font-semibold">Uzbek</h3>
+                    <div className="space-y-6">
                       <label className="block">
-                        <span className="text-sm text-slate-700">
-                          Title (Uz)
+                        <span className="text-sm font-medium text-slate-700">
+                          {t("admin.news.editLanguage")}
+                        </span>
+                        <select
+                          value={newsForm.lang}
+                          onChange={(event) =>
+                            setNewsForm({ ...newsForm, lang: event.target.value })
+                          }
+                          className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+                        >
+                          <option value="uz">{t("admin.news.languages.uz")}</option>
+                          <option value="en">{t("admin.news.languages.en")}</option>
+                          <option value="ru">{t("admin.news.languages.ru")}</option>
+                        </select>
+                      </label>
+
+                      <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-3">
+                        <div className="space-y-4 p-5 border border-slate-200 rounded-3xl bg-gradient-to-br from-blue-50 to-indigo-50">
+                          <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
+                            {t("admin.news.languages.uz")}
+                          </h3>
+                          <label className="block">
+                            <span className="text-sm font-medium text-slate-700">
+                              {t("admin.news.fields.title")}
+                            </span>
+                            <input
+                              value={newsForm.titleUz}
+                              onChange={(event) =>
+                                setNewsForm({
+                                  ...newsForm,
+                                  titleUz: event.target.value,
+                                })
+                              }
+                              className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+                              placeholder={`${t("admin.news.fields.title")} (${t("admin.news.languages.uz")})`}
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="text-sm font-medium text-slate-700">
+                              {t("admin.news.fields.description")}
+                            </span>
+                            <textarea
+                              value={newsForm.descUz}
+                              onChange={(event) =>
+                                setNewsForm({
+                                  ...newsForm,
+                                  descUz: event.target.value,
+                                })
+                              }
+                              className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[100px] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+                              placeholder={`${t("admin.news.fields.description")} (${t("admin.news.languages.uz")})`}
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="text-sm font-medium text-slate-700">
+                              {t("admin.news.fields.fullText")}
+                            </span>
+                            <textarea
+                              value={newsForm.fullTextUz}
+                              onChange={(event) =>
+                                setNewsForm({
+                                  ...newsForm,
+                                  fullTextUz: event.target.value,
+                                })
+                              }
+                              className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[120px] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+                              placeholder={`${t("admin.news.fields.fullText")} (${t("admin.news.languages.uz")})`}
+                            />
+                          </label>
+                        </div>
+
+                        <div className="space-y-4 p-5 border border-slate-200 rounded-3xl bg-gradient-to-br from-green-50 to-emerald-50">
+                          <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+                            {t("admin.news.languages.en")}
+                          </h3>
+                          <label className="block">
+                            <span className="text-sm font-medium text-slate-700">
+                              {t("admin.news.fields.title")}
+                            </span>
+                            <input
+                              value={newsForm.titleEn}
+                              onChange={(event) =>
+                                setNewsForm({
+                                  ...newsForm,
+                                  titleEn: event.target.value,
+                                })
+                              }
+                              className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+                              placeholder={`${t("admin.news.fields.title")} (${t("admin.news.languages.en")})`}
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="text-sm font-medium text-slate-700">
+                              {t("admin.news.fields.description")}
+                            </span>
+                            <textarea
+                              value={newsForm.descEn}
+                              onChange={(event) =>
+                                setNewsForm({
+                                  ...newsForm,
+                                  descEn: event.target.value,
+                                })
+                              }
+                              className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[100px] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+                              placeholder={`${t("admin.news.fields.description")} (${t("admin.news.languages.en")})`}
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="text-sm font-medium text-slate-700">
+                              {t("admin.news.fields.fullText")}
+                            </span>
+                            <textarea
+                              value={newsForm.fullTextEn}
+                              onChange={(event) =>
+                                setNewsForm({
+                                  ...newsForm,
+                                  fullTextEn: event.target.value,
+                                })
+                              }
+                              className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[120px] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+                              placeholder={`${t("admin.news.fields.fullText")} (${t("admin.news.languages.en")})`}
+                            />
+                          </label>
+                        </div>
+
+                        <div className="space-y-4 p-5 border border-slate-200 rounded-3xl bg-gradient-to-br from-red-50 to-rose-50">
+                          <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span className="w-3 h-3 bg-red-500 rounded-full"></span>
+                            {t("admin.news.languages.ru")}
+                          </h3>
+                          <label className="block">
+                            <span className="text-sm font-medium text-slate-700">
+                              {t("admin.news.fields.title")}
+                            </span>
+                            <input
+                              value={newsForm.titleRu}
+                              onChange={(event) =>
+                                setNewsForm({
+                                  ...newsForm,
+                                  titleRu: event.target.value,
+                                })
+                              }
+                              className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+                              placeholder={`${t("admin.news.fields.title")} (${t("admin.news.languages.ru")})`}
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="text-sm font-medium text-slate-700">
+                              {t("admin.news.fields.description")}
+                            </span>
+                            <textarea
+                              value={newsForm.descRu}
+                              onChange={(event) =>
+                                setNewsForm({
+                                  ...newsForm,
+                                  descRu: event.target.value,
+                                })
+                              }
+                              className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[100px] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+                              placeholder={`${t("admin.news.fields.description")} (${t("admin.news.languages.ru")})`}
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="text-sm font-medium text-slate-700">
+                              {t("admin.news.fields.fullText")}
+                            </span>
+                            <textarea
+                              value={newsForm.fullTextRu}
+                              onChange={(event) =>
+                                setNewsForm({
+                                  ...newsForm,
+                                  fullTextRu: event.target.value,
+                                })
+                              }
+                              className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[120px] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+                              placeholder={`${t("admin.news.fields.fullText")} (${t("admin.news.languages.ru")})`}
+                            />
+                          </label>
+                        </div>
+                      </div>
+
+                      <ImageField
+                        label={t("admin.news.fields.image")}
+                        value={newsForm.img}
+                        placeholder={t("admin.news.fields.imagePlaceholder")}
+                        uploading={uploadingImage}
+                        status={uploadStatus}
+                        images={imageLibrary}
+                        onFileUpload={async (file) => {
+                          const uploadedPath = await uploadImageFile(file, "news");
+                          if (uploadedPath) {
+                            setNewsForm({ ...newsForm, img: uploadedPath });
+                          }
+                        }}
+                        onPathChange={(value) =>
+                          setNewsForm({ ...newsForm, img: normalizeUploadPath(value) })
+                        }
+                        onSelectImage={(value) =>
+                          setNewsForm({ ...newsForm, img: value })
+                        }
+                      />
+                      <label className="block">
+                        <span className="text-sm font-medium text-slate-700">
+                          {t("admin.news.fields.date")}
                         </span>
                         <input
-                          value={newsForm.titleUz}
+                          type="date"
+                          value={newsForm.date}
                           onChange={(event) =>
-                            setNewsForm({
-                              ...newsForm,
-                              titleUz: event.target.value,
-                            })
+                            setNewsForm({ ...newsForm, date: event.target.value })
                           }
-                          className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
+                          className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
                         />
                       </label>
-                      <label className="block">
-                        <span className="text-sm text-slate-700">
-                          Short Description (Uz)
-                        </span>
-                        <textarea
-                          value={newsForm.descUz}
-                          onChange={(event) =>
-                            setNewsForm({
-                              ...newsForm,
-                              descUz: event.target.value,
-                            })
-                          }
-                          className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[100px]"
-                        />
-                      </label>
-                      <label className="block">
-                        <span className="text-sm text-slate-700">
-                          Full Text (Uz)
-                        </span>
-                        <textarea
-                          value={newsForm.fullTextUz}
-                          onChange={(event) =>
-                            setNewsForm({
-                              ...newsForm,
-                              fullTextUz: event.target.value,
-                            })
-                          }
-                          className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[120px]"
-                        />
-                      </label>
-                    </div>
 
-                    <div className="space-y-4 p-4 border border-slate-200 rounded-3xl bg-slate-50">
-                      <h3 className="text-lg font-semibold">English</h3>
-                      <label className="block">
-                        <span className="text-sm text-slate-700">
-                          Title (En)
-                        </span>
-                        <input
-                          value={newsForm.titleEn}
-                          onChange={(event) =>
-                            setNewsForm({
-                              ...newsForm,
-                              titleEn: event.target.value,
-                            })
-                          }
-                          className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
-                        />
-                      </label>
-                      <label className="block">
-                        <span className="text-sm text-slate-700">
-                          Short Description (En)
-                        </span>
-                        <textarea
-                          value={newsForm.descEn}
-                          onChange={(event) =>
-                            setNewsForm({
-                              ...newsForm,
-                              descEn: event.target.value,
-                            })
-                          }
-                          className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[100px]"
-                        />
-                      </label>
-                      <label className="block">
-                        <span className="text-sm text-slate-700">
-                          Full Text (En)
-                        </span>
-                        <textarea
-                          value={newsForm.fullTextEn}
-                          onChange={(event) =>
-                            setNewsForm({
-                              ...newsForm,
-                              fullTextEn: event.target.value,
-                            })
-                          }
-                          className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[120px]"
-                        />
-                      </label>
-                    </div>
+                      <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
+                        <div className="flex items-start gap-3">
+                          <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <p className="text-sm text-blue-800">
+                            {t("admin.news.help")}
+                          </p>
+                        </div>
+                      </div>
 
-                    <div className="space-y-4 p-4 border border-slate-200 rounded-3xl bg-slate-50">
-                      <h3 className="text-lg font-semibold">Russian</h3>
-                      <label className="block">
-                        <span className="text-sm text-slate-700">
-                          Title (Ru)
-                        </span>
-                        <input
-                          value={newsForm.titleRu}
-                          onChange={(event) =>
-                            setNewsForm({
-                              ...newsForm,
-                              titleRu: event.target.value,
-                            })
-                          }
-                          className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
-                        />
-                      </label>
-                      <label className="block">
-                        <span className="text-sm text-slate-700">
-                          Short Description (Ru)
-                        </span>
-                        <textarea
-                          value={newsForm.descRu}
-                          onChange={(event) =>
-                            setNewsForm({
-                              ...newsForm,
-                              descRu: event.target.value,
-                            })
-                          }
-                          className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[100px]"
-                        />
-                      </label>
-                      <label className="block">
-                        <span className="text-sm text-slate-700">
-                          Full Text (Ru)
-                        </span>
-                        <textarea
-                          value={newsForm.fullTextRu}
-                          onChange={(event) =>
-                            setNewsForm({
-                              ...newsForm,
-                              fullTextRu: event.target.value,
-                            })
-                          }
-                          className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none min-h-[120px]"
-                        />
-                      </label>
+                      <button
+                        onClick={submitNews}
+                        disabled={loading}
+                        className="w-full rounded-2xl bg-indigo-600 text-white py-4 font-semibold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                      >
+                        {loading ? (
+                          <>
+                            <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            {t("admin.status.loading")}
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            {editNewsId ? t("admin.actions.update") : t("admin.actions.create")} {t("admin.tabs.news")}
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
 
-                  <ImageField
-                    label="Upload news image"
-                    value={newsForm.img}
-                    placeholder="/uploads/news/your-image.jpg"
-                    uploading={uploadingImage}
-                    status={uploadStatus}
-                    images={imageLibrary}
-                    onFileUpload={async (file) => {
-                      const uploadedPath = await uploadImageFile(file, "news");
-                      if (uploadedPath) {
-                        setNewsForm({ ...newsForm, img: uploadedPath });
-                      }
-                    }}
-                    onPathChange={(value) =>
-                      setNewsForm({ ...newsForm, img: normalizeUploadPath(value) })
-                    }
-                    onSelectImage={(value) =>
-                      setNewsForm({ ...newsForm, img: value })
-                    }
-                  />
-                  <label className="block">
-                    <span className="text-sm text-slate-700">Date</span>
-                    <input
-                      type="date"
-                      value={newsForm.date}
-                      onChange={(event) =>
-                        setNewsForm({ ...newsForm, date: event.target.value })
-                      }
-                      className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none"
-                    />
-                  </label>
-                  <p className="text-sm text-slate-500">
-                    When creating new news, all three language versions are
-                    stored together.
-                  </p>
-                  <button
-                    onClick={submitNews}
-                    className="rounded-2xl bg-indigo-600 px-5 py-3 text-white font-semibold hover:bg-indigo-700"
-                    disabled={loading}
-                  >
-                    {editNewsId ? "Update News" : "Create News"}
-                  </button>
-                </div>
+                  {/* Existing News List */}
+                  <div className="bg-white rounded-3xl shadow-lg border border-slate-200 p-6">
+                    <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                      <svg className="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      {t("admin.news.existingTitle")}
+                    </h3>
 
-                <div className="space-y-4">
-                  <h2 className="text-xl font-semibold">Existing News</h2>
-                  <div className="space-y-4">
-                    {news.length === 0 ? (
-                      <p className="text-slate-500">No news items found.</p>
-                    ) : (
-                      news.map((item) => (
-                        <div
-                          key={item.id}
-                          className="rounded-3xl border border-slate-200 p-4"
-                        >
-                          <div className="flex flex-wrap items-center justify-between gap-3">
-                            <div>
-                              <h3 className="font-semibold">{item.title}</h3>
-                              <p className="text-xs text-slate-500">
-                                {item.lang} - {item.date}
-                              </p>
-                            </div>
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => {
-                                  setEditNewsId(item.id);
-                                  setNewsForm({
-                                    titleUz:
-                                      item.lang === "uz" ? item.title : "",
-                                    titleEn:
-                                      item.lang === "en" ? item.title : "",
-                                    titleRu:
-                                      item.lang === "ru" ? item.title : "",
-                                    descUz: item.lang === "uz" ? item.desc : "",
-                                    descEn: item.lang === "en" ? item.desc : "",
-                                    descRu: item.lang === "ru" ? item.desc : "",
-                                    fullTextUz:
-                                      item.lang === "uz" ? item.fullText : "",
-                                    fullTextEn:
-                                      item.lang === "en" ? item.fullText : "",
-                                    fullTextRu:
-                                      item.lang === "ru" ? item.fullText : "",
-                                    img: item.img,
-                                    date: item.date.slice(0, 10),
-                                    lang: item.lang,
-                                  });
-                                }}
-                                className="rounded-2xl bg-slate-100 px-3 py-2 text-sm hover:bg-slate-200"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => removeNews(item.id)}
-                                className="rounded-2xl bg-red-100 px-3 py-2 text-sm text-red-700 hover:bg-red-200"
-                              >
-                                Delete
-                              </button>
+                    <div className="space-y-4">
+                      {news.length === 0 ? (
+                        <div className="text-center py-12">
+                          <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <p className="text-slate-500 text-lg">{t("admin.news.noNews")}</p>
+                        </div>
+                      ) : (
+                        news.map((item) => (
+                          <div
+                            key={item.id}
+                            className="rounded-2xl border border-slate-200 p-5 hover:shadow-md transition bg-gradient-to-r from-white to-slate-50"
+                          >
+                            <div className="flex flex-wrap items-start justify-between gap-4">
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-bold text-slate-900 text-lg mb-2 line-clamp-2">
+                                  {item.title}
+                                </h4>
+                                <div className="flex items-center gap-4 text-sm text-slate-600 mb-3">
+                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                    item.lang === 'uz' ? 'bg-blue-100 text-blue-800' :
+                                    item.lang === 'en' ? 'bg-green-100 text-green-800' :
+                                    'bg-red-100 text-red-800'
+                                  }`}>
+                                    {t(`admin.news.languages.${item.lang}`)}
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    {item.date}
+                                  </span>
+                                </div>
+                                <p className="text-slate-600 text-sm line-clamp-2">
+                                  {item.desc}
+                                </p>
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => {
+                                    setEditNewsId(item.id);
+                                    setNewsForm({
+                                      titleUz: item.lang === "uz" ? item.title : "",
+                                      titleEn: item.lang === "en" ? item.title : "",
+                                      titleRu: item.lang === "ru" ? item.title : "",
+                                      descUz: item.lang === "uz" ? item.desc : "",
+                                      descEn: item.lang === "en" ? item.desc : "",
+                                      descRu: item.lang === "ru" ? item.desc : "",
+                                      fullTextUz: item.lang === "uz" ? item.fullText : "",
+                                      fullTextEn: item.lang === "en" ? item.fullText : "",
+                                      fullTextRu: item.lang === "ru" ? item.fullText : "",
+                                      img: item.img,
+                                      date: item.date.slice(0, 10),
+                                      lang: item.lang,
+                                    });
+                                  }}
+                                  className="rounded-xl bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-200 transition flex items-center gap-2"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                  {t("admin.actions.edit")}
+                                </button>
+                                <button
+                                  onClick={() => removeNews(item.id)}
+                                  className="rounded-xl bg-red-100 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-200 transition flex items-center gap-2"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                  {t("admin.actions.delete")}
+                                </button>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))
-                    )}
+                        ))
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1059,7 +1289,7 @@ export default function AdminPanel() {
               <div className="grid gap-4 lg:grid-cols-2">
                 <div className="space-y-4">
                   <h2 className="text-xl font-semibold">
-                    Create / Update Employee
+                    {t("admin.employees.title")}
                   </h2>
                   <label className="block">
                     <span className="text-sm text-slate-700">Name</span>
@@ -1245,7 +1475,7 @@ export default function AdminPanel() {
               <div className="grid gap-4 lg:grid-cols-2">
                 <div className="space-y-4">
                   <h2 className="text-xl font-semibold">
-                    Create / Update 360 Travel
+                    {t("admin.travel360.title")}
                   </h2>
                   <label className="block">
                     <span className="text-sm text-slate-700">
@@ -1465,7 +1695,7 @@ export default function AdminPanel() {
                                         : "",
                                     img: item.img,
                                     order: item.order,
-                                    lang: item.lang,
+                                    lang: item.lang as string,
                                   });
                                 }}
                                 className="rounded-2xl bg-slate-100 px-3 py-2 text-sm hover:bg-slate-200"
@@ -1491,11 +1721,11 @@ export default function AdminPanel() {
 
           {activeTab === "password" && (
             <section className="space-y-6">
-              <h2 className="text-xl font-semibold">Change Admin Password</h2>
+              <h2 className="text-xl font-semibold">{t("admin.password.title")}</h2>
               <div className="grid gap-4 lg:grid-cols-2">
                 <label className="block">
                   <span className="text-sm text-slate-700">
-                    Current Password
+                    {t("admin.password.fields.current")}
                   </span>
                   <input
                     type="password"
@@ -1510,7 +1740,9 @@ export default function AdminPanel() {
                   />
                 </label>
                 <label className="block">
-                  <span className="text-sm text-slate-700">New Password</span>
+                  <span className="text-sm text-slate-700">
+                    {t("admin.password.fields.new")}
+                  </span>
                   <input
                     type="password"
                     value={passwordForm.newPassword}
@@ -1529,11 +1761,10 @@ export default function AdminPanel() {
                 className="rounded-2xl bg-indigo-600 px-5 py-3 text-white font-semibold hover:bg-indigo-700"
                 disabled={loading}
               >
-                Update Password
+                {t("admin.password.changePassword")}
               </button>
               <p className="text-sm text-slate-500">
-                Default admin credentials are: <strong>director</strong> /{" "}
-                <strong>director</strong>.
+                Default admin credentials are: <strong>director</strong> / <strong>director</strong>.
               </p>
             </section>
           )}

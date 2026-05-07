@@ -106,5 +106,133 @@
     "resetOrientation": "Markazga qaytarish",
     "vrInstruction": "Sichqoncha yoki barmoq bilan harakatlantiring – 360° ko‘rinish",
     "loading": "VR tajriba yuklanmoqda..."
+  },
+  "admin": {
+    "title": "Admin Boshqaruv Paneli",
+    "subtitle": "Yangiliklar, xodimlar, 360° sayohat elementlari va admin parolini boshqaring.",
+    "login": {
+      "title": "Admin Kirish",
+      "username": "Foydalanuvchi nomi",
+      "password": "Parol",
+      "signIn": "Kirish",
+      "error": "Kirishda xatolik"
+    },
+    "tabs": {
+      "news": "Yangiliklar",
+      "employees": "Xodimlar",
+      "travel360": "360° Sayohat",
+      "password": "Parolni o‘zgartirish"
+    },
+    "actions": {
+      "refresh": "Yangilash",
+      "logout": "Chiqish",
+      "create": "Yaratish",
+      "update": "Yangilash",
+      "delete": "O‘chirish",
+      "edit": "Tahrirlash",
+      "save": "Saqlash",
+      "cancel": "Bekor qilish"
+    },
+    "news": {
+      "title": "Yangiliklarni Yaratish / Yangilash",
+      "editLanguage": "Tahrirlash tili",
+      "languages": {
+        "uz": "O‘zbek",
+        "en": "Ingliz",
+        "ru": "Rus"
+      },
+      "fields": {
+        "title": "Sarlavha",
+        "description": "Qisqa tavsif",
+        "fullText": "To‘liq matn",
+        "image": "Rasm yuklash",
+        "date": "Sana",
+        "imagePlaceholder": "/uploads/news/sizning-rasmingiz.jpg"
+      },
+      "help": "Yangi yangilik yaratishda barcha uch tilda ma'lumotlar birgalikda saqlanadi.",
+      "validation": {
+        "imageRequired": "Rasm majburiy.",
+        "dateRequired": "Sana majburiy.",
+        "titleRequired": "Sarlavha majburiy.",
+        "descRequired": "Qisqa tavsif majburiy.",
+        "fullTextRequired": "To‘liq matn majburiy.",
+        "completeTranslationRequired": "Kamida bitta to‘liq til tarjimasi majburiy (sarlavha, tavsif va to‘liq matn).",
+        "singleLanguageRequired": "Tanlangan til uchun sarlavha, tavsif va to‘liq matn majburiy."
+      },
+      "success": {
+        "created": "Yangilik muvaffaqiyatli yaratildi.",
+        "updated": "Yangilik muvaffaqiyatli yangilandi.",
+        "deleted": "Yangilik o‘chirildi."
+      },
+      "existingTitle": "Mavjud Yangiliklar",
+      "noNews": "Yangiliklar topilmadi."
+    },
+    "employees": {
+      "title": "Xodimlarni Yaratish / Yangilash",
+      "fields": {
+        "name": "Ism",
+        "image": "Rasm yuklash",
+        "role": "Lavozim",
+        "highlight": "Ajratib ko‘rsatish",
+        "imagePlaceholder": "/uploads/employees/sizning-rasmingiz.jpg"
+      },
+      "success": {
+        "created": "Xodim muvaffaqiyatli yaratildi.",
+        "updated": "Xodim muvaffaqiyatli yangilandi.",
+        "deleted": "Xodim o‘chirildi."
+      },
+      "existingTitle": "Mavjud Xodimlar",
+      "noEmployees": "Xodimlar topilmadi."
+    },
+    "travel360": {
+      "title": "360° Sayohatni Yaratish / Yangilash",
+      "fields": {
+        "title": "Sarlavha",
+        "description": "Tavsif",
+        "image": "Rasm yuklash",
+        "order": "Tartib",
+        "imagePlaceholder": "/uploads/travel360/sizning-rasmingiz.jpg"
+      },
+      "success": {
+        "created": "360° element muvaffaqiyatli yaratildi.",
+        "updated": "360° element muvaffaqiyatli yangilandi.",
+        "deleted": "360° element o‘chirildi."
+      },
+      "existingTitle": "Mavjud 360° Elementlar",
+      "noItems": "360° elementlar topilmadi."
+    },
+    "password": {
+      "title": "Admin Parolini O‘zgartirish",
+      "fields": {
+        "current": "Joriy parol",
+        "new": "Yangi parol",
+        "confirm": "Yangi parolni tasdiqlang"
+      },
+      "validation": {
+        "currentRequired": "Joriy parol majburiy.",
+        "newRequired": "Yangi parol majburiy.",
+        "confirmRequired": "Parol tasdiqlash majburiy.",
+        "notMatch": "Yangi parollar mos kelmaydi.",
+        "tooShort": "Yangi parol kamida 6 ta belgidan iborat bo‘lishi kerak."
+      },
+      "success": "Parol muvaffaqiyatli o‘zgartirildi.",
+      "changePassword": "Parolni O‘zgartirish"
+    },
+    "status": {
+      "loading": "Yuklanmoqda...",
+      "error": "Xatolik yuz berdi.",
+      "success": "Muvaffaqiyatli bajarildi.",
+      "unableToLoad": "Admin ma'lumotlarini yuklab bo‘lmadi.",
+      "unableToSave": "Saqlab bo‘lmadi.",
+      "imageUploadError": "Rasm yuklashda xatolik.",
+      "imageLibraryError": "Rasm kutubxonasini yuklab bo‘lmadi."
+    },
+    "imageLibrary": {
+      "title": "Rasm Kutubxonasi",
+      "upload": "Yangi rasm yuklash",
+      "select": "Tanlash",
+      "uploading": "Yuklanmoqda...",
+      "noImages": "Rasmlar topilmadi."
+    }
   }
 }

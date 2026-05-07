@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "id": 1,
+    "lang": "uz",
+    "title": "fffffffffff",
+    "desc": "fffffffffffff",
+    "fullText": "ffffffffffff",
+    "img": "/uploads/news/1777464811857-BG_1.jpg",
+    "date": "2026-05-07"
+  },
+  {
+    "id": 2,
+    "lang": "en",
+    "title": "ffffffffffffffff",
+    "desc": "ffffffffffffff",
+    "fullText": "ffffffffffff",
+    "img": "/uploads/news/1777464811857-BG_1.jpg",
+    "date": "2026-05-07"
+  },
+  {
+    "id": 3,
+    "lang": "ru",
+    "title": "fffffffffffffff",
+    "desc": "ffffffffffffffff",
+    "fullText": "ffffffffffffffffffffffffff",
+    "img": "/uploads/news/1777464811857-BG_1.jpg",
+    "date": "2026-05-07"
+  }
+]

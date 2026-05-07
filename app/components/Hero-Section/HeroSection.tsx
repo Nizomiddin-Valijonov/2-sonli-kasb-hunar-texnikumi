@@ -45,7 +45,7 @@ function HeroSection() {
           <Image
             src={logo}
             alt="Maktab illustration"
-            className="w-72 md:w-full drop-shadow-lg drop-shadow-blue-300"
+            className="w-72 md:w-full drop-shadow-lg drop-shadow-blue-100"
           />
         </div>
       </div>
