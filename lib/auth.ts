@@ -1,80 +1,44 @@
 import crypto from "crypto";
-import { readAdminData, writeAdminData } from "@/lib/data";
 
 const DEFAULT_ADMIN_USERNAME = "director";
 const DEFAULT_ADMIN_PASSWORD = "director";
 
-function createHash(password: string, salt?: string) {
-  const usedSalt = salt || crypto.randomBytes(16).toString("hex");
-  const derivedKey = crypto.scryptSync(password, usedSalt, 64);
-  return {
-    hash: derivedKey.toString("hex"),
-    salt: usedSalt,
-  };
-}
-
-function compareHash(password: string, storedHash: string, salt: string) {
-  const derivedKey = crypto.scryptSync(password, salt, 64);
-  const storedBuffer = Buffer.from(storedHash, "hex");
-  return (
-    storedBuffer.length === derivedKey.length &&
-    crypto.timingSafeEqual(storedBuffer, derivedKey)
-  );
-}
-
-export async function ensureAdminCredentials() {
-  const admin = await readAdminData();
-  if (!admin.passwordHash || !admin.salt) {
-    const defaultPair = createHash(DEFAULT_ADMIN_PASSWORD);
-    admin.passwordHash = defaultPair.hash;
-    admin.salt = defaultPair.salt;
-    admin.sessions = [];
-    await writeAdminData(admin);
-  }
-  return admin;
-}
-
 export async function verifyAdminLogin(username: string, password: string) {
-  if (username !== DEFAULT_ADMIN_USERNAME) return false;
-  const admin = await ensureAdminCredentials();
-  return compareHash(password, admin.passwordHash, admin.salt);
+  return username === DEFAULT_ADMIN_USERNAME && password === DEFAULT_ADMIN_PASSWORD;
 }
+
+const ADMIN_SECRET = "some-secret-key"; // In production, use env var
 
 export async function createAdminSession() {
-  const admin = await ensureAdminCredentials();
-  const token = crypto.randomBytes(32).toString("hex");
-  const sessions = admin.sessions.filter(Boolean);
-  sessions.push(token);
-  admin.sessions = sessions;
-  await writeAdminData(admin);
+  const payload = { admin: true, timestamp: Date.now() };
+  const payloadStr = JSON.stringify(payload);
+  const signature = crypto.createHmac("sha256", ADMIN_SECRET).update(payloadStr).digest("hex");
+  const token = Buffer.from(payloadStr).toString("base64") + "." + signature;
   return token;
 }
 
 export async function verifyAdminSession(token?: string) {
   if (!token) return false;
-  const admin = await ensureAdminCredentials();
-  return admin.sessions.includes(token);
+  const parts = token.split(".");
+  if (parts.length !== 2) return false;
+  const payloadStr = Buffer.from(parts[0], "base64").toString();
+  const signature = parts[1];
+  const expectedSignature = crypto.createHmac("sha256", ADMIN_SECRET).update(payloadStr).digest("hex");
+  if (signature !== expectedSignature) return false;
+  const payload = JSON.parse(payloadStr);
+  // Check if not expired, say 24 hours
+  if (Date.now() - payload.timestamp > 24 * 60 * 60 * 1000) return false;
+  return payload.admin === true;
 }
 
 export async function revokeAdminSession(token?: string) {
-  if (!token) return;
-  const admin = await ensureAdminCredentials();
-  admin.sessions = admin.sessions.filter((session) => session !== token);
-  await writeAdminData(admin);
+  // No storage, nothing to revoke
 }
 
 export async function changeAdminPassword(
   currentPassword: string,
   newPassword: string,
 ) {
-  const admin = await ensureAdminCredentials();
-  if (!compareHash(currentPassword, admin.passwordHash, admin.salt)) {
-    return false;
-  }
-  const newPair = createHash(newPassword);
-  admin.passwordHash = newPair.hash;
-  admin.salt = newPair.salt;
-  admin.sessions = [];
-  await writeAdminData(admin);
-  return true;
+  // Since no storage, password change not supported in production
+  return false;
 }
